@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include <stdbool.h>
-#include "structrue.h"
+#include "initial.h"
 
 typedef struct Entry {
     char DIR_Name[11];

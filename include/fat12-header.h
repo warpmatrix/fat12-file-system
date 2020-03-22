@@ -1,7 +1,7 @@
 #ifndef FAT12HEADER_H
 #define FAT12HEADER_H
 
-#include "structrue.h"
+#include "initial.h"
 
 typedef struct Fat12Header {
     char BS_OEMName[8];
@@ -26,5 +26,6 @@ typedef struct Fat12Header {
 } Fat12Header;
 
 void parseMbr(const unsigned char *block, Fat12Header *mbr);
+void printMbrInfo(Fat12Header mbr);
 
 #endif
