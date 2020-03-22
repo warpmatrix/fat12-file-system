@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "fat12-header.h"
-#include "root-entry.h"
+#include "entry.h"
 #include "structrue.h"
 #include "test.h"
 
@@ -28,7 +28,7 @@ int main() {
     printf("\n");
 
     printf("Root Entries:\n");
-    RootEntry rootEntries[224];
+    Entry rootEntries[224];
     int entCnt = 0;
     for (size_t baseSec = 19, secOfst = 0; secOfst < 14; secOfst++) {
         Read_ramFDD_Block(ramFDD144, baseSec + secOfst, block);

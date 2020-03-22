@@ -1,38 +1,37 @@
-#include "root-entry.h"
+#include "entry.h"
 
-int parseEnts(const unsigned char *block, RootEntry *rootEntries) {
+int parseEnts(const unsigned char *block, Entry *entries) {
     const int BYTSPERENT = 32;
     int entCnt = 0;
     for (size_t entIdx = 0; entIdx < BLOCKSIZE / BYTSPERENT; entIdx++) {
         if (block[entIdx * BYTSPERENT] == 0 ||
             block[entIdx * BYTSPERENT] == 0xe5)
             continue;
-        parseEnt(block + entIdx * BYTSPERENT, rootEntries + entCnt++);
+        parseEnt(block + entIdx * BYTSPERENT, entries + entCnt++);
     }
     return entCnt;
 }
 
-void parseEnt(const unsigned char *block, RootEntry *rootEntry) {
-    parseStr(block, 0, 11, rootEntry->DIR_Name);
-    rootEntry->DIR_Attr = parseNum(block, 11, 1);
-    parseStr(block, 12, 10, rootEntry->Reserve);
-    rootEntry->DIR_WrtTime = parseNum(block, 22, 2);
-    rootEntry->DIR_WrtDate = parseNum(block, 24, 2);
-    rootEntry->DIR_FstClus = parseNum(block, 26, 2);
-    rootEntry->DIR_FileSize = parseNum(block, 28, 4);
+void parseEnt(const unsigned char *block, Entry *entry) {
+    parseStr(block, 0, 11, entry->DIR_Name);
+    entry->DIR_Attr = parseNum(block, 11, 1);
+    parseStr(block, 12, 10, entry->Reserve);
+    entry->DIR_WrtTime = parseNum(block, 22, 2);
+    entry->DIR_WrtDate = parseNum(block, 24, 2);
+    entry->DIR_FstClus = parseNum(block, 26, 2);
+    entry->DIR_FileSize = parseNum(block, 28, 4);
 }
 
-void printEnts(const RootEntry *rootEntries, int entCnt) {
+void printEnts(const Entry *entries, int entCnt) {
     for (size_t i = 0; i < entCnt; i++) {
-        if (rootEntries[i].DIR_Attr == 0x27) continue;
-        printf("DIR_Name: "), printStr(rootEntries[i].DIR_Name, 11);
-        printf(",    DIR_Attr: 0x%02X", rootEntries[i].DIR_Attr);
-        char time[17];
-        parseWriTime(rootEntries[i].DIR_WrtTime, rootEntries[i].DIR_WrtDate,
-                     time);
+        if (entries[i].DIR_Attr == 0x27) continue;
+        printf("DIR_Name: "), printStr(entries[i].DIR_Name, 11);
+        printf(",    DIR_Attr: 0x%02X", entries[i].DIR_Attr);
+        char time[20];
+        parseWriTime(entries[i].DIR_WrtTime, entries[i].DIR_WrtDate, time);
         printf(",    WrtTime: %s", time);
-        if (rootEntries[i].DIR_Attr != 0x10)
-            printf(",    FileSize: %d Bytes\n", rootEntries[i].DIR_FileSize);
+        if (entries[i].DIR_Attr != 0x10)
+            printf(",    FileSize: %d Bytes\n", entries[i].DIR_FileSize);
         else
             printf("\n");
     }
