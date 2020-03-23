@@ -22,7 +22,6 @@ void parseMbr(const unsigned char *block, Fat12Header *mbr) {
     parseStr(block, 54, 8, mbr->BS_FileSysType);
 }
 
-
 void printMbrInfo(Fat12Header mbr) {
     printf("BS_OEMName: "), printStr(mbr.BS_OEMName, 8), printf("\n");
     printf("BPB_BytsPerSec: 0x%X\n", mbr.BPB_BytsPerSec);

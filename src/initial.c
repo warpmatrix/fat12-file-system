@@ -13,7 +13,8 @@ bool init(unsigned char *ramFDD144) {
         return false;
     } else
         printf("Successfully Loaded!\n");
-
+    printf("\n");
+    
     printf("MBR info:\n");
     Fat12Header mbr;
     unsigned char block[BLOCKSIZE];
@@ -55,11 +56,26 @@ unsigned int parseNum(const unsigned char *block, size_t base, size_t len) {
     return num;
 }
 
+unsigned short getNextClus(const unsigned char *ramFDD144,
+                           unsigned short clus) {
+    unsigned short fat1Clus = getFatClus(ramFDD144 + BLOCKSIZE, clus);
+    unsigned short fat2Clus = getFatClus(ramFDD144 + BLOCKSIZE * 10, clus);
+    if (fat1Clus == 0xff0) return fat2Clus;
+    return fat1Clus;
+}
+
+unsigned short getFatClus(const unsigned char *fat, unsigned short clus) {
+    unsigned short offset = clus / 2 * 3 - 1;
+    if (clus % 2 == 0)
+        return ((fat[offset + 1] & 0x0f) << 8) | fat[offset];
+    else
+        return (fat[offset + 2] << 4) | ((fat[offset + 1] >> 4) & 0x0f);
+}
+
 void parseStr(const unsigned char *block, size_t base, size_t len, char *str) {
     for (size_t offset = 0; offset < len; offset++)
         str[offset] = block[base + offset];
 }
-
 
 void printBlock(const unsigned char *block) {
     const int ENTPERLINE = 32;
@@ -71,4 +87,8 @@ void printBlock(const unsigned char *block) {
         if (i % 8 == 7) printf(" ");
         if (i % ENTPERLINE == ENTPERLINE - 1) printf("\n");
     }
+}
+
+void printStr(const char *str, int len) {
+    for (size_t offset = 0; offset < len; offset++) printf("%c", str[offset]);
 }

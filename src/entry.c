@@ -4,22 +4,21 @@ int parseEnts(const unsigned char *block, Entry *entries) {
     const int BYTSPERENT = 32;
     int entCnt = 0;
     for (size_t entIdx = 0; entIdx < BLOCKSIZE / BYTSPERENT; entIdx++) {
-        if (block[entIdx * BYTSPERENT] == 0 ||
-            block[entIdx * BYTSPERENT] == 0xe5)
-            continue;
+        if (block[entIdx * BYTSPERENT] == 0) break;
+        if (block[entIdx * BYTSPERENT] == 0xe5) continue;
         parseEnt(block + entIdx * BYTSPERENT, entries + entCnt++);
     }
     return entCnt;
 }
 
-void parseEnt(const unsigned char *block, Entry *entry) {
-    parseStr(block, 0, 11, entry->DIR_Name);
-    entry->DIR_Attr = parseNum(block, 11, 1);
-    parseStr(block, 12, 10, entry->Reserve);
-    entry->DIR_WrtTime = parseNum(block, 22, 2);
-    entry->DIR_WrtDate = parseNum(block, 24, 2);
-    entry->DIR_FstClus = parseNum(block, 26, 2);
-    entry->DIR_FileSize = parseNum(block, 28, 4);
+void parseEnt(const unsigned char *entryStr, Entry *entry) {
+    parseStr(entryStr, 0, 11, entry->DIR_Name);
+    entry->DIR_Attr = parseNum(entryStr, 11, 1);
+    parseStr(entryStr, 12, 10, entry->Reserve);
+    entry->DIR_WrtTime = parseNum(entryStr, 22, 2);
+    entry->DIR_WrtDate = parseNum(entryStr, 24, 2);
+    entry->DIR_FstClus = parseNum(entryStr, 26, 2);
+    entry->DIR_FileSize = parseNum(entryStr, 28, 4);
 }
 
 void printEnts(const Entry *entries, int entCnt) {
@@ -71,6 +70,21 @@ int daysPerMon(int year, int month) {
     }
 }
 
-void printStr(const char *str, int len) {
-    for (size_t offset = 0; offset < len; offset++) printf("%c", str[offset]);
+int findDirClus(const Entry *entries, int entCnt, const char *dirname) {
+    for (size_t i = 0; i < entCnt; i++)
+        if (dirnameEq(dirname, entries[i].DIR_Name) &&
+            entries[i].DIR_Attr == 0x10) {
+            return entries[i].DIR_FstClus;
+        }
+    return -1;
+}
+
+bool dirnameEq(const char *dirname, const char *entDirname) {
+    size_t len = strlen(dirname);
+    for (size_t i = 0; i < len; i++)
+        if (toupper(dirname[i]) != entDirname[i]) return false;
+    if (entDirname[len] == ' ')
+        return true;
+    else
+        return false;
 }
