@@ -1,7 +1,7 @@
 #ifndef FAT12HEADER_H
 #define FAT12HEADER_H
 
-#include "initial.h"
+#include "utils.h"
 
 typedef struct Fat12Header {
     char BS_OEMName[8];

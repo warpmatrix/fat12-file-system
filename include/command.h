@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include "entry.h"
 
-void listEnts(unsigned short fstClus, const unsigned char *ramFDD144);
-void changeDir(unsigned short *fstClus, const unsigned char *ramFDD144);
+int listEnts(unsigned short fstClus, const unsigned char *ramFDD144);
+int changeDir(unsigned short *fstClus, const unsigned char *ramFDD144);
 
 #endif

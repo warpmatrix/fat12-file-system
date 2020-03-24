@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <string.h>
-#include "initial.h"
+#include "utils.h"
 
 typedef struct Entry {
     char DIR_Name[11];

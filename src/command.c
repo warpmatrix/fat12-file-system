@@ -1,6 +1,6 @@
 #include "command.h"
 
-void listEnts(unsigned short fstClus, const unsigned char *ramFDD144) {
+int listEnts(unsigned short fstClus, const unsigned char *ramFDD144) {
     if (fstClus == 0) {
         for (size_t baseSec = 19, secOfst = 0; secOfst < 14; secOfst++) {
             unsigned char block[BLOCKSIZE];
@@ -19,9 +19,10 @@ void listEnts(unsigned short fstClus, const unsigned char *ramFDD144) {
             printEnts(entries, entcnt);
         }
     }
+    return 0;
 }
 
-void changeDir(unsigned short *fstClus, const unsigned char *ramFDD144) {
+int changeDir(unsigned short *fstClus, const unsigned char *ramFDD144) {
     char dirname[9];
     scanf("%s", dirname);
     if (*fstClus == 0) {
@@ -33,11 +34,11 @@ void changeDir(unsigned short *fstClus, const unsigned char *ramFDD144) {
             int newClus = findDirClus(entries, entCnt, dirname);
             if (newClus != -1) {
                 *fstClus = newClus;
-                return;
+                return 0;
             }
             if (entCnt < 16) break;
         }
-        printf("No such directory\n");
+        return -1;
     } else {
         for (unsigned short clus = *fstClus; clus != 0xfff;
              clus = getNextClus(ramFDD144, clus)) {
@@ -48,9 +49,9 @@ void changeDir(unsigned short *fstClus, const unsigned char *ramFDD144) {
             int newClus = findDirClus(entries, entCnt, dirname);
             if (newClus != -1) {
                 *fstClus = newClus;
-                return;
+                return 0;
             }
         }
-        printf("No such directory\n");
+        return -1;
     }
 }
