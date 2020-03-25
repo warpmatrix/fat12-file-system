@@ -5,7 +5,6 @@
 #include "utils.h"
 
 int init(unsigned char *ramFDD144);
-int Read_ramFDD(unsigned char *ramFDD144, const char *filename);
 
 int main() {
     unsigned char ramFDD144[SIZE];
@@ -48,13 +47,4 @@ int init(unsigned char *ramFDD144) {
     printMbrInfo(mbr);
     printf("\n");
     return 0;
-}
-
-int Read_ramFDD(unsigned char *ramFDD144, const char *filename) {
-    FILE *fp = fopen(filename, "rb");
-    if (fp == NULL) return -1;
-    size_t cnt = 0;
-    while (fscanf(fp, "%c", &ramFDD144[cnt]) != EOF) cnt++;
-    fclose(fp);
-    return cnt;
 }

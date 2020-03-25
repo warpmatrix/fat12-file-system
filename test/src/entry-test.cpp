@@ -44,21 +44,3 @@ TEST(ParseEntTest, HandlesExampleEntry) {
     EXPECT_EQ(entry.DIR_FstClus, 0x0002);
     EXPECT_EQ(entry.DIR_FileSize, 0x00009F46);
 }
-
-TEST(DirnameEqTest, HandlesDirnameUsers) {
-    char ent_dirname[11] = "USERS     ";
-    ent_dirname[10] = ' ';
-    EXPECT_TRUE(dirnameEq("users", ent_dirname));
-}
-
-TEST(DirnameEqTest, HandlesDirnameDot) {
-    char ent_dirname[11] = ".         ";
-    ent_dirname[10] = ' ';
-    EXPECT_TRUE(dirnameEq(".", ent_dirname));
-}
-
-TEST(DirnameEqTest, HandlesDirnameDdot) {
-    char ent_dirname[11] = "..       ";
-    ent_dirname[10] = ' ';
-    EXPECT_TRUE(dirnameEq("..", ent_dirname));
-}
