@@ -27,4 +27,5 @@ int daysPerMon(int year, int month);
 
 int findDirClus(const Entry *entries, int entCnt, const char *dirname);
 bool dirnameEq(const char *dirname, const char *entDirname);
+
 #endif

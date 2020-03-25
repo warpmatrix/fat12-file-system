@@ -4,7 +4,6 @@
 #include "command.h"
 #include "utils.h"
 
-
 int init(unsigned char *ramFDD144);
 int Read_ramFDD(unsigned char *ramFDD144, const char *filename);
 
@@ -18,7 +17,7 @@ int main() {
         printf("File size doesn't match\n");
         return 0;
     }
-    
+
     unsigned short clus = 0;
     char cmd[256];
     printf("cmd: ");
@@ -40,7 +39,7 @@ int init(unsigned char *ramFDD144) {
 
     printf("Successfully Loaded!\n");
     printf("\n");
-    
+
     printf("MBR info:\n");
     unsigned char block[BLOCKSIZE];
     Read_ramFDD_Block(ramFDD144, 0, block);

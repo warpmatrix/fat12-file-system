@@ -18,7 +18,7 @@ void Write_ramFDD_Block(unsigned char *ramFDD144, int blockIdx, const unsigned c
 unsigned short getNextClus(const unsigned char *ramFDD144, unsigned short clus);
 unsigned short getFatClus(const unsigned char *fat, unsigned short clus);
 
-unsigned int parseNum(const unsigned char *block, size_t base, size_t len);
+unsigned int parseNum(const unsigned char *str, size_t base, size_t len);
 void parseStr(const unsigned char *block, size_t base, size_t len, char *str);
 
 void printStr(const char *str, int len);

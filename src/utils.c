@@ -4,7 +4,7 @@ const int BLOCKNUM = 2880;
 const int BLOCKSIZE = 512;
 const int SIZE = 1474560;  // 2880 * 512
 
-const char FILENAME[] = "disk.flp";
+const char FILENAME[] = "disk2.flp";
 
 
 void Read_ramFDD_Block(const unsigned char *ramFDD144, int blockIdx,
@@ -21,10 +21,10 @@ void Write_ramFDD_Block(unsigned char *ramFDD144, int blockIdx,
         ramFDD144[base + offset] = block[offset];
 }
 
-unsigned int parseNum(const unsigned char *block, size_t base, size_t len) {
+unsigned int parseNum(const unsigned char *str, size_t base, size_t len) {
     unsigned int num = 0;
     for (size_t offset = 0; offset < len; offset++) {
-        num += block[base + offset] * (1 << (offset * 8));
+        num += str[base + offset] << (offset * 8);
     }
     return num;
 }

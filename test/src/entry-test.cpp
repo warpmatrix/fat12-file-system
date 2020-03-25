@@ -1,6 +1,7 @@
+#include "entry.h"
+
 #include <gtest/gtest.h>
 #include <string.h>
-#include "entry.h"
 
 TEST(DaysPerMonTest, HandlesFeb) {
     EXPECT_EQ(daysPerMon(2000, 2), 29);
@@ -32,8 +33,7 @@ TEST(ParseWriTimeTest, HandlesExampleTime) {
 
 TEST(ParseEntTest, HandlesExampleEntry) {
     unsigned char block[] =
-        "\x49\x4F\x20\x20\x20\x20\x20\x20\x53\x59\x53\x07\x00\x00\x00\x00\x00"
-        "\x00\x00\x00\x00\x00\xC0\x32\xBF\x1C\x02\x00\x46\x9F\x00\x00";
+        "IO      SYS\x07          \xC0\x32\xBF\x1C\x02\x00\x46\x9F\x00\x00";
     Entry entry;
     parseEnt(block, &entry);
     char filename[] = "IO      SYS";
@@ -43,4 +43,22 @@ TEST(ParseEntTest, HandlesExampleEntry) {
     EXPECT_EQ(entry.DIR_WrtDate, 0x1CBF);
     EXPECT_EQ(entry.DIR_FstClus, 0x0002);
     EXPECT_EQ(entry.DIR_FileSize, 0x00009F46);
+}
+
+TEST(DirnameEqTest, HandlesDirnameUsers) {
+    char ent_dirname[11] = "USERS     ";
+    ent_dirname[10] = ' ';
+    EXPECT_TRUE(dirnameEq("users", ent_dirname));
+}
+
+TEST(DirnameEqTest, HandlesDirnameDot) {
+    char ent_dirname[11] = ".         ";
+    ent_dirname[10] = ' ';
+    EXPECT_TRUE(dirnameEq(".", ent_dirname));
+}
+
+TEST(DirnameEqTest, HandlesDirnameDdot) {
+    char ent_dirname[11] = "..       ";
+    ent_dirname[10] = ' ';
+    EXPECT_TRUE(dirnameEq("..", ent_dirname));
 }
