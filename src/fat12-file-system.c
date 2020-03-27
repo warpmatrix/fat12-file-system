@@ -2,11 +2,12 @@
 #include <string.h>
 
 #include "command.h"
+#include "shell.h"
 #include "utils.h"
 
 int init(unsigned char *ramFDD144);
 
-int main() {
+int main(int argc, char const *argv[]) {
     unsigned char ramFDD144[SIZE];
     int res = init(ramFDD144);
     if (res == -1) {
@@ -18,16 +19,21 @@ int main() {
     }
 
     unsigned short clus = 0;
-    char cmd[256];
+    char input[CMDLEN];
     printf("cmd: ");
-    while (scanf("%s", cmd) != EOF) {
-        if (!strcmp(cmd, "dir")) {
-            int res = listEnts(clus, ramFDD144);
-        }
-        else if (!strcmp(cmd, "cd"))
-            changeDir(&clus, ramFDD144);
-        printf("cmd: ");
-    }
+    fgets(input, CMDLEN, stdin);
+    size_t len = strlen(input);
+    if (input[len - 1] == '\n') input[len - 1] = '\0';
+    Command cmd;
+    parseInp(input, &cmd);
+    // while (scanf("%s", cmd) != EOF) {
+    //     if (!strcmp(cmd, "dir")) {
+    //         int res = listEnts(clus, ramFDD144);
+    //     }
+    //     else if (!strcmp(cmd, "cd"))
+    //         changeDir(&clus, ramFDD144);
+    //     printf("cmd: ");
+    // }
 
     return 0;
 }
