@@ -11,6 +11,7 @@ typedef struct Command {
     char *argv[CMDLEN / 2 + 1];
 } Command;
 
+void inputCmd(Command *cmd);
 void initCmd(Command *cmd);
 void parseInp(const char *input, Command *cmd);
 void freeCmd(Command *cmd);

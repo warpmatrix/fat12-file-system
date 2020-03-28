@@ -44,3 +44,37 @@ TEST(ParseEntTest, HandlesExampleEntry) {
     EXPECT_EQ(entry.DIR_FstClus, 0x0002);
     EXPECT_EQ(entry.DIR_FileSize, 0x00009F46);
 }
+
+TEST(EntnameEqTest, HandlesStrUsers) {
+    char entname[11] = "USERS     ";
+    entname[10] = ' ';
+    EXPECT_TRUE(entnameEq("users", entname));
+}
+
+TEST(EntnameEqTest, HandlesStrDot) {
+    char entname[11] = ".         ";
+    entname[10] = ' ';
+    EXPECT_TRUE(entnameEq(".", entname));
+}
+
+TEST(EntnameEqTest, HandlesStrDdot) {
+    char entname[11] = "..        ";
+    entname[10] = ' ';
+    EXPECT_TRUE(entnameEq("..", entname));
+}
+
+TEST(EntnameEqTest, HandlesStrWithExtname) {
+    char entname[11] = "A       TX";
+    entname[10] = 'T';
+    EXPECT_TRUE(entnameEq("a.txt", entname));
+    EXPECT_FALSE(entnameEq("atxt", entname));
+    EXPECT_FALSE(entnameEq("...asd", entname));
+}
+
+TEST(EntnameEqTest, HandlesStrWithoutMainname) {
+    char entname[11] = "        TX";
+    entname[10] = 'T';
+    EXPECT_TRUE(entnameEq(".txt", entname));
+    EXPECT_FALSE(entnameEq("txt", entname));
+    EXPECT_FALSE(entnameEq("...txt", entname));
+}

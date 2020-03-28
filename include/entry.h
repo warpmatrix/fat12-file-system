@@ -25,7 +25,8 @@ void parseWriTime(unsigned short DIR_WrtTime, unsigned short DIR_WrtDate, char *
 bool isLeap(int year);
 int daysPerMon(int year, int month);
 
-int findDirClus(const Entry *entries, int entCnt, const char *dirname);
-bool dirnameEq(const char *dirname, const char *entDirname);
+bool entnameEq(const char *str, const char *entname);
+size_t findEntIdx(unsigned short *clus, const char *entname, const unsigned char *ramFDD144);
+void findEnt(Entry *entry, unsigned short clus, size_t entIdx, const unsigned char *ramFDD144);
 
 #endif

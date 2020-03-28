@@ -71,20 +71,20 @@ TEST(ParseStrTest, HandlesExampleStr) {
         EXPECT_EQ(str[offset], "MSDOS5.0"[offset]);
 }
 
-TEST(DiskStrEqTest, HandlesStrUsers) {
-    char ent_dirname[11] = "USERS     ";
-    ent_dirname[10] = ' ';
-    EXPECT_TRUE(diskStrEq("users", ent_dirname, 11));
+TEST(DiskStrTest, HandlesStrUsers) {
+    char diskStr[11] = "USERS     ";
+    diskStr[10] = ' ';
+    EXPECT_TRUE(diskStrEq("users", diskStr, 11));
 }
 
-TEST(DiskStrEqTest, HandlesStrDot) {
-    char ent_dirname[11] = ".         ";
-    ent_dirname[10] = ' ';
-    EXPECT_TRUE(diskStrEq(".", ent_dirname, 11));
+TEST(DiskStrTest, HandlesStrDot) {
+    char diskStr[11] = ".         ";
+    diskStr[10] = ' ';
+    EXPECT_TRUE(diskStrEq(".", diskStr, 11));
 }
 
-TEST(DiskStrEqTest, HandlesStrDdot) {
-    char ent_dirname[11] = "..        ";
-    ent_dirname[10] = ' ';
-    EXPECT_TRUE(diskStrEq("..", ent_dirname, 11));
+TEST(DiskStrTest, HandlesStrDdot) {
+    char diskStr[11] = "..        ";
+    diskStr[10] = ' ';
+    EXPECT_TRUE(diskStrEq("..", diskStr, 11));
 }

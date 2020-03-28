@@ -14,26 +14,22 @@ int main(int argc, char const *argv[]) {
         printf("Cannot find the disk\n");
         return 0;
     } else if (res != SIZE) {
-        printf("File size doesn't match\n");
+        printf("File size(%d) doesn't match\n", res);
         return 0;
     }
 
     unsigned short clus = 0;
-    char input[CMDLEN];
-    printf("cmd: ");
-    fgets(input, CMDLEN, stdin);
-    size_t len = strlen(input);
-    if (input[len - 1] == '\n') input[len - 1] = '\0';
     Command cmd;
-    parseInp(input, &cmd);
-    // while (scanf("%s", cmd) != EOF) {
-    //     if (!strcmp(cmd, "dir")) {
-    //         int res = listEnts(clus, ramFDD144);
-    //     }
-    //     else if (!strcmp(cmd, "cd"))
-    //         changeDir(&clus, ramFDD144);
-    //     printf("cmd: ");
-    // }
+    inputCmd(&cmd);
+    while (cmd.argc == 0 || cmd.argc > 0 && strcmp(cmd.argv[0], "quit")) {
+        // if (cmd.argc > 0)
+        // if (!strcmp(cmd, "dir")) {
+        //     int res = listEnts(clus, ramFDD144);
+        // } else if (!strcmp(cmd, "cd"))
+        //     changeDir(&clus, ramFDD144);
+        freeCmd(&cmd);
+        inputCmd(&cmd);
+    }
 
     return 0;
 }
@@ -52,5 +48,5 @@ int init(unsigned char *ramFDD144) {
     parseMbr(block, &mbr);
     printMbrInfo(mbr);
     printf("\n");
-    return 0;
+    return cnt;
 }

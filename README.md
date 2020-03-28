@@ -4,8 +4,8 @@ The project mainly using C to simulate FAT12 file system. And it also uses the g
 
 ## To Do List
 
-- [ ] restruct findDirClus->findEntIdx
 - [ ] modify cmd format
+- [x] restruct findDirClus->findEntIdx
 - [x] restruct system (add cmd parser)
 - [x] make testing disk
 - [x] validate file size result

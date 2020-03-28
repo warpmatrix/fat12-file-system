@@ -2,16 +2,23 @@
 
 #include <stdio.h>
 
+void inputCmd(Command *cmd) {
+    char input[CMDLEN];
+    printf("cmd: ");
+    fgets(input, CMDLEN, stdin);
+    parseInp(input, cmd);
+}
+
 void initCmd(Command *cmd) { cmd->argc = 0; }
 
 void parseInp(const char *input, Command *cmd) {
     initCmd(cmd);
-    char *inpCopy = strdup(input);
+    char *inpCopy = strdup(input), *cpyPtr = inpCopy;
     char delim[] = " \n";
     for (char *ptr = strsep(&inpCopy, delim); ptr != NULL;
          ptr = strsep(&inpCopy, delim))
         if (*ptr != '\0') cmd->argv[cmd->argc++] = strdup(ptr);
-    free(inpCopy);
+    free(cpyPtr);
 }
 
 void freeCmd(Command *cmd) {

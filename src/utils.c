@@ -51,6 +51,28 @@ unsigned short getNextClus(const unsigned char *ramFDD144,
     // return fat1Clus;
 }
 
+unsigned short getEntClus(unsigned short fstClus, const char *entname,
+                          const unsigned char *ramFDD144) {
+    size_t entIdx = findEntIdx(&fstClus, entname, ramFDD144);
+    Entry entry;
+    findEnt(&entry, fstClus, entIdx, ramFDD144);
+    return entry.DIR_FstClus;
+}
+
+unsigned short parsePath(const char *path, unsigned short clus,
+                         const unsigned char *ramFDD144) {
+    const char delim[] = "/";
+    char *pathCopy = strdup(path), *cpyPtr = pathCopy;
+    unsigned short entClus = clus;
+    for (char *entname = strsep(&pathCopy, delim); entname != NULL;
+         entname = strsep(&pathCopy, delim)) {
+        entClus = getEntClus(entClus, entname, ramFDD144);
+        if (entClus == -1) break;
+    }
+    free(cpyPtr);
+    return entClus;
+}
+
 // unsigned short getFatClus(const unsigned char *fat, unsigned short clus) {
 //     unsigned short offset = clus / 2 * 3 - 1;
 //     if (clus % 2 == 0)
@@ -59,11 +81,6 @@ unsigned short getNextClus(const unsigned char *ramFDD144,
 //         return (fat[offset + 2] << 4) | ((fat[offset + 1] >> 4) & 0x0f);
 // }
 
-void parseStr(const unsigned char *block, size_t base, size_t len, char *str) {
-    for (size_t offset = 0; offset < len; offset++)
-        str[offset] = block[base + offset];
-}
-
 bool diskStrEq(const char *str, const char *diskStr, int size) {
     for (size_t offset = 0; offset < size; offset++) {
         if (offset < strlen(str) && diskStr[offset] != toupper(str[offset]))
@@ -71,6 +88,11 @@ bool diskStrEq(const char *str, const char *diskStr, int size) {
         if (offset >= strlen(str) && diskStr[offset] != ' ') return false;
     }
     return true;
+}
+
+void parseStr(const unsigned char *block, size_t base, size_t len, char *str) {
+    for (size_t offset = 0; offset < len; offset++)
+        str[offset] = block[base + offset];
 }
 
 void printBlock(const unsigned char *block) {
