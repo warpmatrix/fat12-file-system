@@ -51,5 +51,8 @@ clean-obj:
 	rm -rf $(TEST_BUILD_DIR)
 
 run-test:
-	@make all
+	$(MAKE)
 	./test/bin/gtest
+
+debug:
+	@echo $(SRC)

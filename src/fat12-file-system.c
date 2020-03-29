@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "io.h"
 #include "command.h"
 #include "shell.h"
 #include "utils.h"

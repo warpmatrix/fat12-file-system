@@ -2,6 +2,7 @@
 #define COMMAND_H
 
 #include <stdio.h>
+#include "io.h"
 #include "entry.h"
 
 int listEnts(unsigned short fstClus, const unsigned char *ramFDD144);

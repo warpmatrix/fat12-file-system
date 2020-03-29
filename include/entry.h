@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <string.h>
+#include "io.h"
 #include "utils.h"
 
 typedef struct Entry {
