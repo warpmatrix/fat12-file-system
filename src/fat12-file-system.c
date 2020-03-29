@@ -1,10 +1,11 @@
+#include "command.h"
+#include "io.h"
+#include "shell.h"
+
 #include <stdio.h>
 #include <string.h>
 
-#include "io.h"
-#include "command.h"
-#include "shell.h"
-#include "utils.h"
+const char FILENAME[] = "disk/disk.flp";
 
 int init(unsigned char *ramFDD144);
 
@@ -17,15 +18,19 @@ int main(int argc, char const *argv[]) {
     } else if (res != SIZE) {
         printf("File size(%d) doesn't match\n", res);
         return 0;
+    } else {
+        printf("Successfully Loaded!\n");
+        printf("\n");
     }
 
     unsigned short clus = 0;
     Command cmd;
     inputCmd(&cmd);
     while (cmd.argc == 0 || cmd.argc > 0 && strcmp(cmd.argv[0], "quit")) {
-        // if (cmd.argc > 0)
-        // if (!strcmp(cmd, "dir")) {
-        //     int res = listEnts(clus, ramFDD144);
+        if (!strcmp(cmd.argv[0], "dir")) {
+            int res = listEnts(clus, cmd.argv[1], ramFDD144);
+            if (res != 0) printf("No such file or directory\n");
+        }
         // } else if (!strcmp(cmd, "cd"))
         //     changeDir(&clus, ramFDD144);
         freeCmd(&cmd);
@@ -38,9 +43,6 @@ int main(int argc, char const *argv[]) {
 int init(unsigned char *ramFDD144) {
     int cnt = Read_ramFDD(ramFDD144, FILENAME);
     if (cnt != SIZE) return cnt;
-
-    printf("Successfully Loaded!\n");
-    printf("\n");
 
     printf("MBR info:\n");
     unsigned char block[BLOCKSIZE];

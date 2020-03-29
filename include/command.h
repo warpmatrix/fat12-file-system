@@ -2,10 +2,13 @@
 #define COMMAND_H
 
 #include <stdio.h>
-#include "io.h"
-#include "entry.h"
 
-int listEnts(unsigned short fstClus, const unsigned char *ramFDD144);
-int changeDir(unsigned short *fstClus, const unsigned char *ramFDD144);
+#include "entry.h"
+#include "io.h"
+
+int listEnts(unsigned short fstClus, const char *path,
+             const unsigned char *ramFDD144);
+int changeDir(unsigned short *fstClus, const char *path,
+              const unsigned char *ramFDD144);
 
 #endif

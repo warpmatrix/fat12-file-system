@@ -9,7 +9,11 @@ void inputCmd(Command *cmd) {
     parseInp(input, cmd);
 }
 
-void initCmd(Command *cmd) { cmd->argc = 0; }
+void initCmd(Command *cmd) {
+    cmd->argc = 0;
+    for (size_t i = 0; i < CMDLEN / 2 + 1; i++)
+        cmd->argv[i] = NULL;
+}
 
 void parseInp(const char *input, Command *cmd) {
     initCmd(cmd);

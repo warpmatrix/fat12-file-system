@@ -99,7 +99,7 @@ size_t findEntIdx(unsigned short *fstClus, const char *entname,
         for (size_t baseSec = 19, secOfst = 0; secOfst < 14; secOfst++) {
             unsigned char block[BLOCKSIZE];
             Read_ramFDD_Block(ramFDD144, baseSec + secOfst, block);
-            entCnt += parseEnts(block, entries);
+            entCnt += parseEnts(block, entries + entCnt);
         }
         for (size_t i = 0; i < entCnt; i++)
             if (entnameEq(entname, entries[i].DIR_Name)) return i;

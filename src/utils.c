@@ -4,13 +4,10 @@ const int BLOCKNUM = 2880;
 const int BLOCKSIZE = 512;
 const int SIZE = 1474560;  // 2880 * 512
 
-const char FILENAME[] = "disk/disk.flp";
-
 unsigned int parseNum(const unsigned char *str, size_t base, size_t len) {
     unsigned int num = 0;
-    for (size_t offset = 0; offset < len; offset++) {
-        num += str[base + offset] << (offset * 8);
-    }
+    for (size_t offset = 0; offset < len; offset++)
+        num |= str[base + offset] << (offset * 8);
     return num;
 }
 

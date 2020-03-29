@@ -53,6 +53,3 @@ clean-obj:
 run-test:
 	$(MAKE)
 	./test/bin/gtest
-
-debug:
-	@echo $(SRC)
