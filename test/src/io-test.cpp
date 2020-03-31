@@ -1,5 +1,8 @@
 #include <gtest/gtest.h>
+
+extern "C" {
 #include "io.h"
+}
 
 TEST(ReadRamFDDTest, HandlesDisk1) {
     EXPECT_EQ(SIZE, 2880 * 512);

@@ -1,7 +1,10 @@
-#include "entry.h"
-
 #include <gtest/gtest.h>
 #include <string.h>
+
+extern "C" {
+#include "entry.h"
+}
+
 
 TEST(DaysPerMonTest, HandlesFeb) {
     EXPECT_EQ(daysPerMon(2000, 2), 29);
@@ -49,6 +52,9 @@ TEST(EntnameEqTest, HandlesStrUsers) {
     char entname[11] = "USERS     ";
     entname[10] = ' ';
     EXPECT_TRUE(entnameEq("users", entname));
+    EXPECT_FALSE(entnameEq(".users", entname));
+    EXPECT_TRUE(entnameEq("users.", entname));
+    // EXPECT_FALSE(entnameEq("users.", entname));
 }
 
 TEST(EntnameEqTest, HandlesStrDot) {
@@ -68,7 +74,9 @@ TEST(EntnameEqTest, HandlesStrWithExtname) {
     entname[10] = 'T';
     EXPECT_TRUE(entnameEq("a.txt", entname));
     EXPECT_FALSE(entnameEq("atxt", entname));
-    EXPECT_FALSE(entnameEq("...asd", entname));
+    EXPECT_FALSE(entnameEq(".a.txt", entname));
+    EXPECT_FALSE(entnameEq("a..txt", entname));
+    EXPECT_FALSE(entnameEq(".atxt", entname));
 }
 
 TEST(EntnameEqTest, HandlesStrWithoutMainname) {
@@ -76,5 +84,5 @@ TEST(EntnameEqTest, HandlesStrWithoutMainname) {
     entname[10] = 'T';
     EXPECT_TRUE(entnameEq(".txt", entname));
     EXPECT_FALSE(entnameEq("txt", entname));
-    EXPECT_FALSE(entnameEq("...txt", entname));
+    EXPECT_FALSE(entnameEq("..txt", entname));
 }

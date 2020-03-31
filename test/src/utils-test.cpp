@@ -1,5 +1,8 @@
 #include <gtest/gtest.h>
+
+extern "C" {
 #include "utils.h"
+}
 
 TEST(ParseNumTest, HandlesNumStr) {
     const unsigned char testStr[] = "\x32\xf0";
@@ -23,16 +26,20 @@ TEST(DiskStrTest, HandlesStrUsers) {
     char diskStr[11] = "USERS     ";
     diskStr[10] = ' ';
     EXPECT_TRUE(diskStrEq("users", diskStr, 11));
+    EXPECT_FALSE(diskStrEq(".users", diskStr, 11));
+    EXPECT_FALSE(diskStrEq("users.", diskStr, 11));
 }
 
 TEST(DiskStrTest, HandlesStrDot) {
     char diskStr[11] = ".         ";
     diskStr[10] = ' ';
     EXPECT_TRUE(diskStrEq(".", diskStr, 11));
+    EXPECT_FALSE(diskStrEq("..", diskStr, 11));
 }
 
 TEST(DiskStrTest, HandlesStrDdot) {
     char diskStr[11] = "..        ";
     diskStr[10] = ' ';
     EXPECT_TRUE(diskStrEq("..", diskStr, 11));
+    EXPECT_FALSE(diskStrEq(".", diskStr, 11));
 }

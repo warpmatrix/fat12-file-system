@@ -7,7 +7,7 @@ TARGET = $(BIN_DIR)/fat12-file-system
 SRC = $(wildcard $(SRC_DIR)/*.c)
 INCLUDE = -I ./$(INC_DIR)
 OBJ = $(SRC:$(SRC_DIR)/%.c=$(BUILD_DIR)/%.o)
-CC = g++
+CC = gcc
 
 TEST_BIN_DIR = test/bin
 TEST_SRC_DIR = test/src

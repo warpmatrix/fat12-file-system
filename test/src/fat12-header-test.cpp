@@ -1,6 +1,8 @@
-#include "fat12-header.h"
-
 #include <gtest/gtest.h>
+
+extern "C" {
+#include "fat12-header.h"
+}
 
 void MY_EXPECT_STREQ(const char *diskStr, const char *str, int size) {
     for (size_t offset = 0; offset < size; offset++) {

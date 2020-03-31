@@ -1,5 +1,8 @@
 #include <gtest/gtest.h>
+
+extern "C" {
 #include "shell.h"
+}
 
 TEST(ParseInpTest, HandlesOneWordStr) {
     Command cmd;
