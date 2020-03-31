@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 extern "C" {
+#include "io.h"
 #include "utils.h"
 }
 
@@ -42,4 +43,35 @@ TEST(DiskStrTest, HandlesStrDdot) {
     diskStr[10] = ' ';
     EXPECT_TRUE(diskStrEq("..", diskStr, 11));
     EXPECT_FALSE(diskStrEq(".", diskStr, 11));
+}
+
+TEST(ParsePathTest, HandlesRootEntry) {
+    unsigned char ramFDD144[SIZE];
+    int res = Read_ramFDD(ramFDD144, "test/disk/startup.flp");
+    EXPECT_EQ(res, SIZE);
+    unsigned short dirClus = 0;
+    unsigned short entClus = parsePath(&dirClus, "io.sys", ramFDD144);
+    EXPECT_EQ(entClus, 0x002);
+    EXPECT_EQ(dirClus, 0x000);
+}
+
+TEST(ParsePathTest, HandlesSubDirEntry) {
+    unsigned char ramFDD144[SIZE];
+    int res = Read_ramFDD(ramFDD144, "test/disk/test-disk.flp");
+    EXPECT_EQ(res, SIZE);
+
+    unsigned short dirClus = 0;
+    unsigned short entClus = parsePath(&dirClus, "user", ramFDD144);
+    EXPECT_EQ(entClus, 0x81f);
+    EXPECT_EQ(dirClus, 0x000);
+    
+    dirClus = entClus;
+    entClus = parsePath(&dirClus, "matrix/music", ramFDD144);
+    EXPECT_EQ(entClus, 0x822);
+    EXPECT_EQ(dirClus, 0x821);
+
+    dirClus = entClus;
+    entClus = parsePath(&dirClus, "../../../command.com", ramFDD144);
+    EXPECT_EQ(entClus, 0x09d);
+    EXPECT_EQ(dirClus, 0x0);
 }
