@@ -13,25 +13,9 @@ unsigned int parseNum(const unsigned char *str, size_t base, size_t len) {
 
 unsigned short getNextClus(const unsigned char *ramFDD144,
                            unsigned short clus) {
-    const unsigned char *fat = ramFDD144 + BLOCKSIZE;
-    unsigned short offset = clus / 2 * 3 - 1;
-    if (clus % 2 == 0)
-        return ((fat[offset + 1] & 0x0f) << 8) | fat[offset];
-    else
-        return (fat[offset + 2] << 4) | ((fat[offset + 1] >> 4) & 0x0f);
-    // unsigned short fat1Clus = getFatClus(ramFDD144 + BLOCKSIZE, clus);
-    // unsigned short fat2Clus = getFatClus(ramFDD144 + BLOCKSIZE * 10, clus);
-    // if (fat1Clus == 0xff0) return fat2Clus;
-    // return fat1Clus;
+    unsigned short fat1Clus = getFatClus(ramFDD144 + BLOCKSIZE, clus);
+    return fat1Clus;
 }
-
-// unsigned short getEntClus(unsigned short fstClus, const char *entname,
-//                           const unsigned char *ramFDD144) {
-//     size_t entIdx = findEntIdx(&fstClus, entname, ramFDD144);
-//     Entry entry;
-//     findEnt(&entry, fstClus, entIdx, ramFDD144);
-//     return entry.DIR_FstClus;
-// }
 
 unsigned short parsePath(unsigned short *dirClus, const char *path,
                          const unsigned char *ramFDD144) {
@@ -53,13 +37,13 @@ unsigned short parsePath(unsigned short *dirClus, const char *path,
     return entry.DIR_FstClus;
 }
 
-// unsigned short getFatClus(const unsigned char *fat, unsigned short clus) {
-//     unsigned short offset = clus / 2 * 3 - 1;
-//     if (clus % 2 == 0)
-//         return ((fat[offset + 1] & 0x0f) << 8) | fat[offset];
-//     else
-//         return (fat[offset + 2] << 4) | ((fat[offset + 1] >> 4) & 0x0f);
-// }
+unsigned short getFatClus(const unsigned char *fat, unsigned short clus) {
+    unsigned short offset = clus / 2 * 3 - 1;
+    if (clus % 2 == 0)
+        return ((fat[offset + 1] & 0x0f) << 8) | fat[offset];
+    else
+        return (fat[offset + 2] << 4) | ((fat[offset + 1] >> 4) & 0x0f);
+}
 
 bool diskStrEq(const char *str, const char *diskStr, int size) {
     for (size_t offset = 0; offset < size; offset++) {

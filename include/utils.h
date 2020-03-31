@@ -16,7 +16,6 @@ extern const char FILENAME[];
 
 unsigned short getNextClus(const unsigned char *ramFDD144, unsigned short clus);
 unsigned short getFatClus(const unsigned char *fat, unsigned short clus);
-// unsigned short getEntClus(unsigned short fstClus, const char *entname, const unsigned char *ramFDD144);
 
 // ret entClus and modify dirClus
 unsigned short parsePath(unsigned short *dirClus, const char *path,
