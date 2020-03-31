@@ -25,26 +25,32 @@ unsigned short getNextClus(const unsigned char *ramFDD144,
     // return fat1Clus;
 }
 
-unsigned short getEntClus(unsigned short fstClus, const char *entname,
-                          const unsigned char *ramFDD144) {
-    size_t entIdx = findEntIdx(&fstClus, entname, ramFDD144);
-    Entry entry;
-    findEnt(&entry, fstClus, entIdx, ramFDD144);
-    return entry.DIR_FstClus;
-}
+// unsigned short getEntClus(unsigned short fstClus, const char *entname,
+//                           const unsigned char *ramFDD144) {
+//     size_t entIdx = findEntIdx(&fstClus, entname, ramFDD144);
+//     Entry entry;
+//     findEnt(&entry, fstClus, entIdx, ramFDD144);
+//     return entry.DIR_FstClus;
+// }
 
-unsigned short parsePath(const char *path, unsigned short clus,
+unsigned short parsePath(unsigned short *dirClus, const char *path,
                          const unsigned char *ramFDD144) {
     const char delim[] = "/";
     char *pathCopy = strdup(path), *cpyPtr = pathCopy;
-    unsigned short entClus = clus;
-    for (char *entname = strsep(&pathCopy, delim); entname != NULL;
+    unsigned short newDirClus = *dirClus;
+    Entry entry;
+    for (const char *entname = strsep(&pathCopy, delim); entname != NULL;
          entname = strsep(&pathCopy, delim)) {
-        entClus = getEntClus(entClus, entname, ramFDD144);
-        if (entClus == -1) break;
+        entry = getEntByName(entname, newDirClus, ramFDD144);
+        if (entry.DIR_FstClus == (unsigned short) -1) {
+            free(cpyPtr);
+            return -1;
+        }
+        if (pathCopy) newDirClus = entry.DIR_FstClus;
     }
     free(cpyPtr);
-    return entClus;
+    *dirClus = newDirClus;
+    return entry.DIR_FstClus;
 }
 
 // unsigned short getFatClus(const unsigned char *fat, unsigned short clus) {

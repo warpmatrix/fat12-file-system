@@ -1,8 +1,8 @@
 #include "entry.h"
 
-int parseEnts(const unsigned char *block, Entry *entries) {
+size_t parseEnts(const unsigned char *block, Entry *entries) {
     const int BYTSPERENT = 32;
-    int entCnt = 0;
+    size_t entCnt = 0;
     for (size_t entIdx = 0; entIdx < BLOCKSIZE / BYTSPERENT; entIdx++) {
         if (block[entIdx * BYTSPERENT] == 0) break;
         if (block[entIdx * BYTSPERENT] == 0xe5) continue;
@@ -33,6 +33,28 @@ void printEnts(const Entry *entries, int entCnt) {
             printf(",    FileSize: %d Bytes\n", entries[i].DIR_FileSize);
         else
             printf("\n");
+    }
+}
+
+void listEnts(unsigned short fstClus, const unsigned char *ramFDD144) {
+    if (fstClus == 0) {
+        Entry entries[224];
+        size_t entCnt = 0;
+        for (size_t baseSec = 19, secOfst = 0; secOfst < 14; secOfst++) {
+            unsigned char block[BLOCKSIZE];
+            Read_ramFDD_Block(ramFDD144, baseSec + secOfst, block);
+            entCnt += parseEnts(block, entries + entCnt);
+            printEnts(entries, entCnt);
+        }
+    } else {
+        for (unsigned short clus = fstClus; clus != 0xfff;
+             clus = getNextClus(ramFDD144, clus)) {
+            unsigned char block[BLOCKSIZE];
+            Read_ramFDD_Block(ramFDD144, clus + 31, block);
+            Entry entries[16];
+            int entcnt = parseEnts(block, entries);
+            printEnts(entries, entcnt);
+        }
     }
 }
 
@@ -71,8 +93,9 @@ int daysPerMon(int year, int month) {
 }
 
 bool entnameEq(const char *str, const char *entname) {
-    if (!strcmp(str, ".")) return diskStrEq(entname, ".          ", 11);
-    if (!strcmp(str, "..")) return diskStrEq(entname, "..         ", 11);
+    if (!strcmp(str, ".")) return diskStrEq(".          ", entname, 11);
+    if (!strcmp(str, "..")) return diskStrEq("..         ", entname, 11);
+
     char *strCopy = strdup(str), *cpyPtr = strCopy;
     const char delim[] = ".";
 
@@ -86,49 +109,76 @@ bool entnameEq(const char *str, const char *entname) {
         free(cpyPtr);
         return false;
     }
-    
+
     free(cpyPtr);
     return true;
 }
 
-size_t findEntIdx(unsigned short *fstClus, const char *entname,
-               const unsigned char *ramFDD144) {
-    if (*fstClus == 0) {
-        Entry entries[224];
-        int entCnt = 0;
+Entry getEntByName(const char *entname, unsigned short dirClus,
+                   const unsigned char *ramFDD144) {
+    if (dirClus == 0) {
         for (size_t baseSec = 19, secOfst = 0; secOfst < 14; secOfst++) {
             unsigned char block[BLOCKSIZE];
             Read_ramFDD_Block(ramFDD144, baseSec + secOfst, block);
-            entCnt += parseEnts(block, entries + entCnt);
+            Entry entries[16];
+            size_t entCnt = parseEnts(block, entries);
+            for (size_t i = 0; i < entCnt; i++)
+                if (entnameEq(entname, entries[i].DIR_Name)) return entries[i];
         }
-        for (size_t i = 0; i < entCnt; i++)
-            if (entnameEq(entname, entries[i].DIR_Name)) return i;
-        return -1;
+        Entry entry = {.DIR_FstClus = -1};
+        return entry;
     } else {
-        for (unsigned short clus = *fstClus; clus != 0xfff;
+        for (unsigned short clus = dirClus; clus != 0xfff;
              clus = getNextClus(ramFDD144, clus)) {
             unsigned char block[BLOCKSIZE];
             Read_ramFDD_Block(ramFDD144, clus + 31, block);
             Entry entries[16];
-            int entCnt = parseEnts(block, entries);
+            size_t entCnt = parseEnts(block, entries);
             for (size_t i = 0; i < entCnt; i++)
-                if (entnameEq(entname, entries[i].DIR_Name)) {
-                    *fstClus = clus;
-                    return i;
-                }
+                if (entnameEq(entname, entries[i].DIR_Name)) return entries[i];
         }
-        return -1;
+        Entry entry = {.DIR_FstClus = -1};
+        return entry;
     }
 }
 
-void findEnt(Entry *entry, unsigned short clus, size_t entIdx, const unsigned char *ramFDD144) {
-    size_t base, offset;
-    if (clus == 0) {
-        base = (19 + entIdx / 16) * 512;
-        offset = (entIdx % 16) * 32;
+Entry getEntByClus(unsigned short entClus, unsigned short dirClus,
+                   const unsigned char *ramFDD144) {
+    if (dirClus == 0) {
+        for (size_t baseSec = 19, secOfst = 0; secOfst < 14; secOfst++) {
+            unsigned char block[BLOCKSIZE];
+            Read_ramFDD_Block(ramFDD144, baseSec + secOfst, block);
+            Entry entries[16];
+            size_t entCnt = parseEnts(block, entries);
+            for (size_t i = 0; i < entCnt; i++)
+                if (entries[i].DIR_FstClus == entClus) return entries[i];
+        }
+        Entry entry = {.DIR_FstClus = -1};
+        return entry;
     } else {
-        base = (31 + clus) * 512;
-        offset = entIdx * 32;
+        for (unsigned short clus = dirClus; clus != 0xfff;
+             clus = getNextClus(ramFDD144, clus)) {
+            unsigned char block[BLOCKSIZE];
+            Read_ramFDD_Block(ramFDD144, clus + 31, block);
+            Entry entries[16];
+            size_t entCnt = parseEnts(block, entries);
+            for (size_t i = 0; i < entCnt; i++)
+                if (entries[i].DIR_FstClus == entClus) return entries[i];
+        }
+        Entry entry = {.DIR_FstClus = -1};
+        return entry;
     }
-    parseEnt(&ramFDD144[base + offset], entry);
 }
+
+// void findEnt(Entry *entry, unsigned short clus, size_t entIdx,
+//              const unsigned char *ramFDD144) {
+//     size_t base, offset;
+//     if (clus == 0) {
+//         base = (19 + entIdx / 16) * 512;
+//         offset = (entIdx % 16) * 32;
+//     } else {
+//         base = (31 + clus) * 512;
+//         offset = entIdx * 32;
+//     }
+//     parseEnt(&ramFDD144[base + offset], entry);
+// }

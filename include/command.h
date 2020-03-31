@@ -6,9 +6,9 @@
 #include "entry.h"
 #include "io.h"
 
-int listEnts(unsigned short fstClus, const char *path,
-             const unsigned char *ramFDD144);
-int changeDir(unsigned short *fstClus, const char *path,
-              const unsigned char *ramFDD144);
+int dircmd(unsigned short curClus, const char *path,
+           const unsigned char *ramFDD144);
+int cdcmd(unsigned short *fstClus, const char *path,
+          const unsigned char *ramFDD144);
 
 #endif

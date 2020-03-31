@@ -28,8 +28,8 @@ int main(int argc, char const *argv[]) {
     inputCmd(&cmd);
     while (cmd.argc == 0 || cmd.argc > 0 && strcmp(cmd.argv[0], "quit")) {
         if (!strcmp(cmd.argv[0], "dir")) {
-            int res = listEnts(clus, cmd.argv[1], ramFDD144);
-            if (res != 0) printf("No such file or directory\n");
+            int res = dircmd(clus, cmd.argv[1], ramFDD144);
+            if (res == -1) printf("No such directory\n");
         }
         // } else if (!strcmp(cmd, "cd"))
         //     changeDir(&clus, ramFDD144);

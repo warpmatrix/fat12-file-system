@@ -13,5 +13,4 @@ void Read_ramFDD_Block(const unsigned char *ramFDD144, int blockIdx,
 void Write_ramFDD_Block(const unsigned char *block, unsigned char *ramFDD144,
                         int blockIdx);
 
-
 #endif

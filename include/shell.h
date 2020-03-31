@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-const int CMDLEN = 256;
+#define CMDLEN 256
 
 typedef struct Command {
     int argc;
