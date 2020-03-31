@@ -1,9 +1,9 @@
+#include <stdio.h>
+#include <string.h>
+
 #include "command.h"
 #include "io.h"
 #include "shell.h"
-
-#include <stdio.h>
-#include <string.h>
 
 const char FILENAME[] = "disk/disk.flp";
 
@@ -25,16 +25,19 @@ int main(int argc, char const *argv[]) {
 
     unsigned short clus = 0;
     Command cmd;
-    inputCmd(&cmd);
+    inputCmd(&cmd, clus, ramFDD144);
     while (cmd.argc == 0 || cmd.argc > 0 && strcmp(cmd.argv[0], "quit")) {
         if (!strcmp(cmd.argv[0], "dir")) {
             int res = dircmd(clus, cmd.argv[1], ramFDD144);
-            if (res == -1) printf("No such directory\n");
+            if (res == -1) printCmd(&cmd), printf(": No such directory\n");
+        } else if (!strcmp(cmd.argv[0], "cd")) {
+            int res = cdcmd(&clus, cmd.argv[1], ramFDD144);
+            if (res == -1) printCmd(&cmd), printf(": No such directory\n");
+        } else if (!strcmp(cmd.argv[0], "clear")) {
+            clearcmd();
         }
-        // } else if (!strcmp(cmd, "cd"))
-        //     changeDir(&clus, ramFDD144);
         freeCmd(&cmd);
-        inputCmd(&cmd);
+        inputCmd(&cmd, clus, ramFDD144);
     }
 
     return 0;
