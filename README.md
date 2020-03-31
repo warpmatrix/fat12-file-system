@@ -4,7 +4,8 @@ The project mainly using C to simulate FAT12 file system. And it also uses googl
 
 ## To Do List
 
-- [ ] modify cmd format
+- [ ] add cmd: md, rd, del, copy
+- [x] modify cmd format
 - [x] restruct unsigned short entIdx parsePath(unsigned short *dirclus, const char *path, const char ramFDD144);
 - [x] restruct findDirClus->findEntIdx
 - [x] restruct system (add cmd parser)

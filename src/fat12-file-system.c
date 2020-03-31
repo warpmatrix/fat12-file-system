@@ -34,10 +34,10 @@ int main(int argc, char const *argv[]) {
             } else if (!strcmp(cmd.argv[0], "cd")) {
                 int res = cdcmd(&clus, cmd.argv[1], ramFDD144);
                 if (res == -1) printCmd(&cmd), printf(": No such directory\n");
+            } else if (!strcmp(cmd.argv[0], "pwd")) {
+                pwdcmd(clus, ramFDD144);
             } else if (!strcmp(cmd.argv[0], "clear")) {
                 clearcmd();
-            } else if (!strcmp(cmd.argv[0], "pwd")) {
-                printPath(clus, ramFDD144), printf("\n");
             } else {
                 printCmd(&cmd), printf(": command not found\n");
             }
@@ -57,8 +57,7 @@ int init(unsigned char *ramFDD144) {
     printf("MBR info:\n");
     unsigned char block[BLOCKSIZE];
     Read_ramFDD_Block(ramFDD144, 0, block);
-    Fat12Header mbr;
-    parseMbr(block, &mbr);
+    Fat12Header mbr = parseMbr(block);
     printMbrInfo(mbr);
     printf("\n");
     return cnt;

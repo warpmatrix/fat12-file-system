@@ -18,8 +18,7 @@ TEST(ParseMbrTest, HandlesDisk2Mbr) {
     ASSERT_NE((long long int)fp, NULL) << "Can't find the disk file";
     unsigned char block[512];
     for (size_t i = 0; i < 512; i++) fscanf(fp, "%c", &block[i]);
-    Fat12Header mbr;
-    parseMbr(block, &mbr);
+    Fat12Header mbr = parseMbr(block);
     const char BS_OEMName[] = "MSDOS5.0";
     MY_EXPECT_STREQ(mbr.BS_OEMName, BS_OEMName, 8);
     EXPECT_EQ(mbr.BPB_BytsPerSec, 0x200);

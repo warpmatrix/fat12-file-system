@@ -6,19 +6,21 @@ size_t parseEnts(const unsigned char *block, Entry *entries) {
     for (size_t entIdx = 0; entIdx < BLOCKSIZE / BYTSPERENT; entIdx++) {
         if (block[entIdx * BYTSPERENT] == 0) break;
         if (block[entIdx * BYTSPERENT] == 0xe5) continue;
-        parseEnt(block + entIdx * BYTSPERENT, entries + entCnt++);
+        entries[entCnt++] = parseEntStr(block + entIdx * BYTSPERENT);
     }
     return entCnt;
 }
 
-void parseEnt(const unsigned char *entryStr, Entry *entry) {
-    parseStr(entryStr, 0, 11, entry->DIR_Name);
-    entry->DIR_Attr = parseNum(entryStr, 11, 1);
-    parseStr(entryStr, 12, 10, entry->Reserve);
-    entry->DIR_WrtTime = parseNum(entryStr, 22, 2);
-    entry->DIR_WrtDate = parseNum(entryStr, 24, 2);
-    entry->DIR_FstClus = parseNum(entryStr, 26, 2);
-    entry->DIR_FileSize = parseNum(entryStr, 28, 4);
+Entry parseEntStr(const unsigned char *entryStr) {
+    Entry entry;
+    parseStr(entryStr, 0, 11, entry.DIR_Name);
+    entry.DIR_Attr = parseNum(entryStr, 11, 1);
+    parseStr(entryStr, 12, 10, entry.Reserve);
+    entry.DIR_WrtTime = parseNum(entryStr, 22, 2);
+    entry.DIR_WrtDate = parseNum(entryStr, 24, 2);
+    entry.DIR_FstClus = parseNum(entryStr, 26, 2);
+    entry.DIR_FileSize = parseNum(entryStr, 28, 4);
+    return entry;
 }
 
 void printEnts(const Entry *entries, int entCnt) {
@@ -169,16 +171,3 @@ Entry getEntByClus(unsigned short entClus, unsigned short dirClus,
         return entry;
     }
 }
-
-// void findEnt(Entry *entry, unsigned short clus, size_t entIdx,
-//              const unsigned char *ramFDD144) {
-//     size_t base, offset;
-//     if (clus == 0) {
-//         base = (19 + entIdx / 16) * 512;
-//         offset = (entIdx % 16) * 32;
-//     } else {
-//         base = (31 + clus) * 512;
-//         offset = entIdx * 32;
-//     }
-//     parseEnt(&ramFDD144[base + offset], entry);
-// }

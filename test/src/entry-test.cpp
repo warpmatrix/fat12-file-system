@@ -35,10 +35,9 @@ TEST(ParseWriTimeTest, HandlesExampleTime) {
 }
 
 TEST(ParseEntTest, HandlesExampleEntry) {
-    unsigned char block[] =
+    unsigned char entStr[] =
         "IO      SYS\x07          \xC0\x32\xBF\x1C\x02\x00\x46\x9F\x00\x00";
-    Entry entry;
-    parseEnt(block, &entry);
+    Entry entry = parseEntStr(entStr);
     char filename[] = "IO      SYS";
     for (size_t i = 0; i < 11; i++) EXPECT_EQ(entry.DIR_Name[i], filename[i]);
     EXPECT_EQ(entry.DIR_Attr, 0x07);

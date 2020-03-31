@@ -19,7 +19,7 @@ typedef struct Entry {
 } Entry;
 
 size_t parseEnts(const unsigned char *block, Entry *entries);
-void parseEnt(const unsigned char *entryStr, Entry *entry);
+Entry parseEntStr(const unsigned char *entryStr);
 void printEnts(const Entry *entries, int entCnt);
 void listEnts(unsigned short fstClus, const unsigned char *ramFDD144);
 void parseWriTime(unsigned short DIR_WrtTime, unsigned short DIR_WrtDate, char *time);

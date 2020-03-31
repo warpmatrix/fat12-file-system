@@ -13,7 +13,7 @@ typedef struct Command {
 
 Command inputCmd(void);
 void initCmd(Command *cmd);
-void parseInp(const char *input, Command *cmd);
+Command parseInp(const char *input);
 void printCmd(const Command *cmd);
 void freeCmd(Command *cmd);
 

@@ -25,7 +25,7 @@ typedef struct Fat12Header {
     char BS_FileSysType[8];
 } Fat12Header;
 
-void parseMbr(const unsigned char *block, Fat12Header *mbr);
+Fat12Header parseMbr(const unsigned char *block);
 void printMbrInfo(Fat12Header mbr);
 
 #endif

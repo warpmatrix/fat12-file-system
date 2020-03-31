@@ -5,18 +5,16 @@ extern "C" {
 }
 
 TEST(ParseInpTest, HandlesOneWordStr) {
-    Command cmd;
     char input[] = "quit\n";
-    parseInp(input, &cmd);
+    Command cmd = parseInp(input);
     EXPECT_EQ(cmd.argc, 1);
     EXPECT_STREQ(cmd.argv[0], "quit");
     freeCmd(&cmd);
 }
 
 TEST(ParseInpTest, HandlesMoreWordsStr) {
-    Command cmd;
     char input[] = "dir ./../abc\n";
-    parseInp(input, &cmd);
+    Command cmd = parseInp(input);
     EXPECT_EQ(cmd.argc, 2);
     EXPECT_STREQ(cmd.argv[0], "dir");
     EXPECT_STREQ(cmd.argv[1], "./../abc");
@@ -24,9 +22,8 @@ TEST(ParseInpTest, HandlesMoreWordsStr) {
 }
 
 TEST(ParseInpTest, HandlesEmptyStr) {
-    Command cmd;
     char input[] = "\n";
-    parseInp(input, &cmd);
+    Command cmd = parseInp(input);
     EXPECT_EQ(cmd.argc, 0);
     freeCmd(&cmd);
 }
