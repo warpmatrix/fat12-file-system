@@ -20,6 +20,9 @@ unsigned short getFatClus(const unsigned char *fat, unsigned short clus);
 // ret entClus and modify dirClus
 unsigned short parsePath(unsigned short *dirClus, const char *path,
                          const unsigned char *ramFDD144);
+size_t findPath(char **path, unsigned short entClus, const unsigned char *ramFDD144);
+void printPath(unsigned short clus, const unsigned char *ramFDD144);
+
 unsigned int parseNum(const unsigned char *str, size_t base, size_t len);
 void parseStr(const unsigned char *block, size_t base, size_t len, char *str);
 

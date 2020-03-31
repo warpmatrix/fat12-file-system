@@ -24,21 +24,28 @@ int main(int argc, char const *argv[]) {
     }
 
     unsigned short clus = 0;
-    Command cmd;
-    inputCmd(&cmd, clus, ramFDD144);
+    printPath(clus, ramFDD144), printf("$ ");
+    Command cmd = inputCmd();
     while (cmd.argc == 0 || cmd.argc > 0 && strcmp(cmd.argv[0], "quit")) {
-        if (!strcmp(cmd.argv[0], "dir")) {
-            int res = dircmd(clus, cmd.argv[1], ramFDD144);
-            if (res == -1) printCmd(&cmd), printf(": No such directory\n");
-        } else if (!strcmp(cmd.argv[0], "cd")) {
-            int res = cdcmd(&clus, cmd.argv[1], ramFDD144);
-            if (res == -1) printCmd(&cmd), printf(": No such directory\n");
-        } else if (!strcmp(cmd.argv[0], "clear")) {
-            clearcmd();
-        }
+        if (cmd.argc > 0)
+            if (!strcmp(cmd.argv[0], "dir")) {
+                int res = dircmd(clus, cmd.argv[1], ramFDD144);
+                if (res == -1) printCmd(&cmd), printf(": No such directory\n");
+            } else if (!strcmp(cmd.argv[0], "cd")) {
+                int res = cdcmd(&clus, cmd.argv[1], ramFDD144);
+                if (res == -1) printCmd(&cmd), printf(": No such directory\n");
+            } else if (!strcmp(cmd.argv[0], "clear")) {
+                clearcmd();
+            } else if (!strcmp(cmd.argv[0], "pwd")) {
+                printPath(clus, ramFDD144), printf("\n");
+            } else {
+                printCmd(&cmd), printf(": command not found\n");
+            }
         freeCmd(&cmd);
-        inputCmd(&cmd, clus, ramFDD144);
+        printPath(clus, ramFDD144), printf("$ ");
+        cmd = inputCmd();
     }
+    freeCmd(&cmd);
 
     return 0;
 }
