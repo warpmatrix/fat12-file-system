@@ -34,6 +34,11 @@ int main(int argc, char const *argv[]) {
             } else if (!strcmp(cmd.argv[0], "cd")) {
                 int res = cdcmd(&clus, cmd.argv[1], ramFDD144);
                 if (res == -1) printCmd(&cmd), printf(": No such directory\n");
+            } else if (!strcmp(cmd.argv[0], "md")) {
+                int res = mdcmd(clus, cmd.argv[1], ramFDD144);
+                if (res == -1) printCmd(&cmd), printf(": Missing operand\n");
+                else if (res == -2) printCmd(&cmd), printf(": No such directory\n");
+                else if (res == -3) printCmd(&cmd), printf(": File or directory exists\n");
             } else if (!strcmp(cmd.argv[0], "pwd")) {
                 pwdcmd(clus, ramFDD144);
             } else if (!strcmp(cmd.argv[0], "clear")) {

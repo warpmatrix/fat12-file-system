@@ -1,12 +1,14 @@
 #ifndef ENTRY_H
 #define ENTRY_H
 
-#include <stdio.h>
 #include <stdbool.h>
-#include <ctype.h>
+#include <stdio.h>
 #include <string.h>
+#include <time.h>
+
 #include "io.h"
 #include "utils.h"
+#include "fat.h"
 
 typedef struct Entry {
     char DIR_Name[11];
@@ -18,11 +20,19 @@ typedef struct Entry {
     unsigned int DIR_FileSize;
 } Entry;
 
-size_t parseEnts(const unsigned char *block, Entry *entries);
+size_t parseEntBlock(const unsigned char *block, Entry *entries);
 Entry parseEntStr(const unsigned char *entryStr);
+
+int mknewDir(const char *entname, unsigned short dirClus,
+             unsigned char *ramFDD144);
+Entry mknewEnt(const char *entname, unsigned char attr, time_t secs,
+               unsigned short fstClus, unsigned int size);
+void parseTime(time_t time, unsigned short *wrtTime, unsigned short *wrtDate);
+
 void printEnts(const Entry *entries, int entCnt);
 void listEnts(unsigned short fstClus, const unsigned char *ramFDD144);
-void parseWriTime(unsigned short DIR_WrtTime, unsigned short DIR_WrtDate, char *time);
+void parseWriTime(unsigned short DIR_WrtTime, unsigned short DIR_WrtDate,
+                  char *time);
 
 bool isLeap(int year);
 int daysPerMon(int year, int month);

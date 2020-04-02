@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
 extern "C" {
-#include "io.h"
 #include "utils.h"
 }
 
@@ -64,7 +63,7 @@ TEST(ParsePathTest, HandlesSubDirEntry) {
     unsigned short entClus = parsePath(&dirClus, "user", ramFDD144);
     EXPECT_EQ(entClus, 0x81f);
     EXPECT_EQ(dirClus, 0x000);
-    
+
     dirClus = entClus;
     entClus = parsePath(&dirClus, "matrix/music", ramFDD144);
     EXPECT_EQ(entClus, 0x822);
@@ -74,4 +73,25 @@ TEST(ParsePathTest, HandlesSubDirEntry) {
     entClus = parsePath(&dirClus, "../../../command.com", ramFDD144);
     EXPECT_EQ(entClus, 0x09d);
     EXPECT_EQ(dirClus, 0x0);
+}
+
+TEST(ParsePathTest, HandlesNullEntry) {
+    unsigned char ramFDD144[SIZE];
+    int res = Read_ramFDD(ramFDD144, "test/disk/test-disk.flp");
+    EXPECT_EQ(res, SIZE);
+
+    unsigned short dirClus = 0;
+    unsigned short entClus = parsePath(&dirClus, "null.ent", ramFDD144);
+    EXPECT_EQ(entClus, (unsigned short)-1);
+    EXPECT_EQ(dirClus, 0x000);
+
+    dirClus = 0;
+    entClus = parsePath(&dirClus, "user/null.ent", ramFDD144);
+    EXPECT_EQ(entClus, (unsigned short)-1);
+    EXPECT_EQ(dirClus, 0x81f);
+
+    dirClus = 0;
+    entClus = parsePath(&dirClus, "null/null.ent", ramFDD144);
+    EXPECT_EQ(entClus, (unsigned short)-1);
+    EXPECT_EQ(dirClus, (unsigned short)-1);
 }

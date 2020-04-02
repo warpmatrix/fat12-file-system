@@ -85,3 +85,12 @@ TEST(EntnameEqTest, HandlesStrWithoutMainname) {
     EXPECT_FALSE(entnameEq("txt", entname));
     EXPECT_FALSE(entnameEq("..txt", entname));
 }
+
+TEST(ParseTimeTest, HandlesExampleTime) {
+    unsigned short wrtTime, wrtDate;
+    time_t timer = 1585789263;
+    parseTime(timer, &wrtTime, &wrtDate);
+    char time[20];
+    parseWriTime(wrtTime, wrtDate, time);
+    EXPECT_STREQ(time, "2020-04-02 09:01:02");
+}

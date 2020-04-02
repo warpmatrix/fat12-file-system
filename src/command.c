@@ -26,6 +26,22 @@ int cdcmd(unsigned short *clus, const char *path,
     return 0;
 }
 
+int mdcmd(unsigned short clus, const char *path, unsigned char *ramFDD144) {
+    if (!path) return -1;  // missing operand
+    unsigned short dirClus = clus;
+    unsigned short entClus = parsePath(&dirClus, path, ramFDD144);
+    if (dirClus == (unsigned short)-1) return -2;
+    if (entClus != (unsigned short)-1) return -3;
+    char delim[] = "/";
+    char *pathCopy = strdup(path), *cpyPtr = pathCopy;
+    const char *entname = strsep(&pathCopy, delim);
+    while (pathCopy) entname = strsep(&pathCopy, delim);
+    int res = mknewDir(entname, dirClus, ramFDD144);
+    if (res == -1) return -4;
+    free(cpyPtr);
+    return 0;
+}
+
 void pwdcmd(unsigned short clus, const unsigned char *ramFDD144) {
     printPath(clus, ramFDD144), printf("\n");
 }
