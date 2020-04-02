@@ -39,6 +39,8 @@ int main(int argc, char const *argv[]) {
                 if (res == -1) printCmd(&cmd), printf(": Missing operand\n");
                 else if (res == -2) printCmd(&cmd), printf(": No such directory\n");
                 else if (res == -3) printCmd(&cmd), printf(": File or directory exists\n");
+                else if (res == -4) printCmd(&cmd), printf(": Root directory is full\n");
+                else if (res == -5) printCmd(&cmd), printf(": Disk is full\n");
             } else if (!strcmp(cmd.argv[0], "pwd")) {
                 pwdcmd(clus, ramFDD144);
             } else if (!strcmp(cmd.argv[0], "clear")) {

@@ -14,6 +14,28 @@ TEST(ParseNumTest, HandlesStrWithLetter) {
     EXPECT_EQ(parseNum(testStr, 2, 4), 0x17bff032);
 }
 
+TEST(ParseEntNumTest, HandlesZero) {
+    unsigned char entStr[6];
+    parseEntNum(0, entStr, 1, 4);
+    for (size_t i = 1; i < 5; i++) EXPECT_EQ(entStr[i], 0);
+}
+
+TEST(ParseEntNumTest, HandlesPositiveNumber) {
+    unsigned char entStr[6];
+    parseEntNum(0x1032f102, entStr, 1, 4);
+    EXPECT_EQ(entStr[1], 0x02);
+    EXPECT_EQ(entStr[2], 0xf1);
+    EXPECT_EQ(entStr[3], 0x32);
+    EXPECT_EQ(entStr[4], 0x10);
+}
+
+TEST(ParseEntCharStrTest, HandlesEntChatStr) {
+    char entCharStr[11] = "user      ";
+    entCharStr[10] = ' ';
+    unsigned char entStr[13];
+    parseEntCharStr(entCharStr, entStr, 1, 11);
+}
+
 TEST(ParseStrTest, HandlesExampleStr) {
     unsigned char block[] = "\xeb\x3c\x90MSDOS5.0\x02\x01";
     char str[8];
@@ -25,9 +47,10 @@ TEST(ParseStrTest, HandlesExampleStr) {
 TEST(DiskStrTest, HandlesStrUsers) {
     char diskStr[11] = "USERS     ";
     diskStr[10] = ' ';
-    EXPECT_TRUE(diskStrEq("users", diskStr, 11));
-    EXPECT_FALSE(diskStrEq(".users", diskStr, 11));
-    EXPECT_FALSE(diskStrEq("users.", diskStr, 11));
+    EXPECT_TRUE(diskStrEq("USERS", diskStr, 11));
+    EXPECT_FALSE(diskStrEq("users", diskStr, 11));
+    EXPECT_FALSE(diskStrEq(".USERS", diskStr, 11));
+    EXPECT_FALSE(diskStrEq("USERS.", diskStr, 11));
 }
 
 TEST(DiskStrTest, HandlesStrDot) {
@@ -49,7 +72,7 @@ TEST(ParsePathTest, HandlesRootEntry) {
     int res = Read_ramFDD(ramFDD144, "test/disk/startup.flp");
     EXPECT_EQ(res, SIZE);
     unsigned short dirClus = 0;
-    unsigned short entClus = parsePath(&dirClus, "io.sys", ramFDD144);
+    unsigned short entClus = parsePath(&dirClus, "IO.SYS", ramFDD144);
     EXPECT_EQ(entClus, 0x002);
     EXPECT_EQ(dirClus, 0x000);
 }
@@ -60,17 +83,17 @@ TEST(ParsePathTest, HandlesSubDirEntry) {
     EXPECT_EQ(res, SIZE);
 
     unsigned short dirClus = 0;
-    unsigned short entClus = parsePath(&dirClus, "user", ramFDD144);
+    unsigned short entClus = parsePath(&dirClus, "USER", ramFDD144);
     EXPECT_EQ(entClus, 0x81f);
     EXPECT_EQ(dirClus, 0x000);
 
     dirClus = entClus;
-    entClus = parsePath(&dirClus, "matrix/music", ramFDD144);
+    entClus = parsePath(&dirClus, "MATRIX/MUSIC", ramFDD144);
     EXPECT_EQ(entClus, 0x822);
     EXPECT_EQ(dirClus, 0x821);
 
     dirClus = entClus;
-    entClus = parsePath(&dirClus, "../../../command.com", ramFDD144);
+    entClus = parsePath(&dirClus, "../../../COMMAND.COM", ramFDD144);
     EXPECT_EQ(entClus, 0x09d);
     EXPECT_EQ(dirClus, 0x0);
 }
@@ -86,7 +109,7 @@ TEST(ParsePathTest, HandlesNullEntry) {
     EXPECT_EQ(dirClus, 0x000);
 
     dirClus = 0;
-    entClus = parsePath(&dirClus, "user/null.ent", ramFDD144);
+    entClus = parsePath(&dirClus, "USER/null.ent", ramFDD144);
     EXPECT_EQ(entClus, (unsigned short)-1);
     EXPECT_EQ(dirClus, 0x81f);
 

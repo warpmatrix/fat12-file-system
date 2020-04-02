@@ -1,16 +1,8 @@
 #include <gtest/gtest.h>
+#include "test-utils.hpp"
 
 extern "C" {
 #include "fat12-header.h"
-}
-
-void MY_EXPECT_STREQ(const char *diskStr, const char *str, int size) {
-    for (size_t offset = 0; offset < size; offset++) {
-        if (offset < strlen(str))
-            EXPECT_EQ(diskStr[offset], str[offset]);
-        else
-            EXPECT_EQ(diskStr[offset], ' ');
-    }
 }
 
 TEST(ParseMbrTest, HandlesDisk2Mbr) {

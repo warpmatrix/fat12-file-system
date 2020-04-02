@@ -6,9 +6,11 @@
 #include <string.h>
 #include <time.h>
 
+extern const size_t BYTSPERENT;
+
+#include "fat.h"
 #include "io.h"
 #include "utils.h"
-#include "fat.h"
 
 typedef struct Entry {
     char DIR_Name[11];
@@ -22,6 +24,13 @@ typedef struct Entry {
 
 size_t parseEntBlock(const unsigned char *block, Entry *entries);
 Entry parseEntStr(const unsigned char *entryStr);
+
+void parseEnt(const Entry *entry, unsigned char *entStr);
+void parseEnts(const Entry *entries, size_t entCnt, unsigned char *block);
+
+size_t getFreeEntIdx(unsigned char *block);
+size_t getDirFreeEnt(size_t *blockIdx, unsigned short dirClus,
+                     unsigned char *ramFDD144);
 
 int mknewDir(const char *entname, unsigned short dirClus,
              unsigned char *ramFDD144);
@@ -38,6 +47,7 @@ bool isLeap(int year);
 int daysPerMon(int year, int month);
 
 bool entnameEq(const char *str, const char *entname);
+
 Entry getEntByName(const char *entname, unsigned short dirClus,
                    const unsigned char *ramFDD144);
 Entry getEntByClus(unsigned short entClus, unsigned short dirClus,

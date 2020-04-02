@@ -5,7 +5,6 @@ extern "C" {
 #include "entry.h"
 }
 
-
 TEST(DaysPerMonTest, HandlesFeb) {
     EXPECT_EQ(daysPerMon(2000, 2), 29);
     EXPECT_EQ(daysPerMon(2001, 2), 28);
@@ -34,7 +33,50 @@ TEST(ParseWriTimeTest, HandlesExampleTime) {
     EXPECT_STREQ(time, "2016-09-22 09:21:28");
 }
 
-TEST(ParseEntTest, HandlesExampleEntry) {
+TEST(ParseEntTest, HandlesDotDirEnt) {
+    Entry entry;
+    strcpy(entry.DIR_Name, ".         "), entry.DIR_Name[10] = ' ';
+    entry.DIR_Attr = 0x10;
+    memset(entry.Reserve, 0, 10);
+    entry.DIR_WrtTime = 0x4AAE;
+    entry.DIR_WrtDate = 0x4936;
+    entry.DIR_FstClus = 0;
+    entry.DIR_FileSize = 0;
+    unsigned char entStr[32];
+    parseEnt(&entry, entStr);
+    unsigned char corrEntStr[] =
+        ".          "
+        "\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xAE\x4A\x36\x49\x00\x00"
+        "\x00\x00\x00\x00";
+    for (size_t offset = 0; offset < 32; offset++)
+        EXPECT_EQ(entStr[offset], corrEntStr[offset]) << offset;
+}
+
+TEST(ParseEntsTest, HandlesEmptyDirEntry) {
+    unsigned short newEntClus = 2, dirClus = 0;
+    Entry entries[2];
+    time_t wrtTime = 1585789263;
+    entries[0] = mknewEnt(".", 0x10, wrtTime, newEntClus, 0);
+    entries[1] = mknewEnt("..", 0x10, wrtTime, dirClus, 0);
+    unsigned char block[BLOCKSIZE];
+    parseEnts(entries, 2, block);
+    unsigned char entStr1[] =
+        ".          "
+        "\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x21\x48\x82\x50\x02\x00"
+        "\x00\x00\x00\x00";
+    unsigned char entStr2[] =
+        "..         "
+        "\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x21\x48\x82\x50\x00\x00"
+        "\x00\x00\x00\x00";
+    for (size_t offset = 0; offset < 32; offset++)
+        EXPECT_EQ(block[offset], entStr1[offset]) << offset;
+    for (size_t offset = 0; offset < 32; offset++)
+        EXPECT_EQ(block[32 + offset], entStr2[offset]);
+    for (size_t offset = 64; offset < BLOCKSIZE; offset++)
+        EXPECT_EQ(block[offset], 0x0);
+}
+
+TEST(ParseEntStrTest, HandlesExampleEntry) {
     unsigned char entStr[] =
         "IO      SYS\x07          \xC0\x32\xBF\x1C\x02\x00\x46\x9F\x00\x00";
     Entry entry = parseEntStr(entStr);
@@ -50,9 +92,10 @@ TEST(ParseEntTest, HandlesExampleEntry) {
 TEST(EntnameEqTest, HandlesStrUsers) {
     char entname[11] = "USERS     ";
     entname[10] = ' ';
-    EXPECT_TRUE(entnameEq("users", entname));
-    EXPECT_FALSE(entnameEq(".users", entname));
-    EXPECT_TRUE(entnameEq("users.", entname));
+    EXPECT_TRUE(entnameEq("USERS", entname));
+    EXPECT_FALSE(entnameEq("users", entname));
+    EXPECT_FALSE(entnameEq(".USERS", entname));
+    EXPECT_TRUE(entnameEq("USERS.", entname));
     // EXPECT_FALSE(entnameEq("users.", entname));
 }
 
@@ -71,26 +114,27 @@ TEST(EntnameEqTest, HandlesStrDdot) {
 TEST(EntnameEqTest, HandlesStrWithExtname) {
     char entname[11] = "A       TX";
     entname[10] = 'T';
-    EXPECT_TRUE(entnameEq("a.txt", entname));
-    EXPECT_FALSE(entnameEq("atxt", entname));
-    EXPECT_FALSE(entnameEq(".a.txt", entname));
-    EXPECT_FALSE(entnameEq("a..txt", entname));
-    EXPECT_FALSE(entnameEq(".atxt", entname));
+    EXPECT_TRUE(entnameEq("A.TXT", entname));
+    EXPECT_FALSE(entnameEq("a.txt", entname));
+    EXPECT_FALSE(entnameEq("ATXT", entname));
+    EXPECT_FALSE(entnameEq(".A.TXT", entname));
+    EXPECT_FALSE(entnameEq("A..TXT", entname));
+    EXPECT_FALSE(entnameEq(".ATXT", entname));
 }
 
 TEST(EntnameEqTest, HandlesStrWithoutMainname) {
     char entname[11] = "        TX";
     entname[10] = 'T';
-    EXPECT_TRUE(entnameEq(".txt", entname));
-    EXPECT_FALSE(entnameEq("txt", entname));
-    EXPECT_FALSE(entnameEq("..txt", entname));
+    EXPECT_TRUE(entnameEq(".TXT", entname));
+    EXPECT_FALSE(entnameEq(".txt", entname));
+    EXPECT_FALSE(entnameEq("TXT", entname));
+    EXPECT_FALSE(entnameEq("..TXT", entname));
 }
 
 TEST(ParseTimeTest, HandlesExampleTime) {
     unsigned short wrtTime, wrtDate;
     time_t timer = 1585789263;
     parseTime(timer, &wrtTime, &wrtDate);
-    char time[20];
-    parseWriTime(wrtTime, wrtDate, time);
-    EXPECT_STREQ(time, "2020-04-02 09:01:02");
+    EXPECT_EQ(wrtTime, 18465);  // 09:01:02
+    EXPECT_EQ(wrtDate, 20610);  // 2020-04-02
 }

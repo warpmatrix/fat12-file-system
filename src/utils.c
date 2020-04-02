@@ -5,7 +5,7 @@ const int SIZE = 1474560;  // 2880 * 512
 
 bool diskStrEq(const char *str, const char *diskStr, int size) {
     for (size_t offset = 0; offset < size; offset++) {
-        if (offset < strlen(str) && diskStr[offset] != toupper(str[offset]))
+        if (offset < strlen(str) && diskStr[offset] != str[offset])
             return false;
         if (offset >= strlen(str) && diskStr[offset] != ' ') return false;
     }
@@ -22,6 +22,16 @@ unsigned int parseNum(const unsigned char *str, size_t base, size_t len) {
 void parseStr(const unsigned char *block, size_t base, size_t len, char *str) {
     for (size_t offset = 0; offset < len; offset++)
         str[offset] = block[base + offset];
+}
+
+void parseEntNum(unsigned int entNum, unsigned char *entStr, size_t base, size_t len) {
+    for (size_t offset = 0; offset < len; offset++)
+        entStr[base + offset] = entNum & 0xff, entNum >>= 8;
+}
+
+void parseEntCharStr(const char *entCharStr, unsigned char *entStr, size_t base, size_t len) {
+    for (size_t offset = 0; offset < len; offset++)
+        entStr[base + offset] = entCharStr[offset];
 }
 
 void printBlock(const unsigned char *block) {

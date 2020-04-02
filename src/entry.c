@@ -1,5 +1,7 @@
 #include "entry.h"
 
+const size_t BYTSPERENT = 32;
+
 size_t parseEntBlock(const unsigned char *block, Entry *entries) {
     const int BYTSPERENT = 32;
     size_t entCnt = 0;
@@ -23,15 +25,90 @@ Entry parseEntStr(const unsigned char *entryStr) {
     return entry;
 }
 
+void parseEnt(const Entry *entry, unsigned char *entStr) {
+    parseEntCharStr(entry->DIR_Name, entStr, 0, 11);
+    parseEntNum(entry->DIR_Attr, entStr, 11, 1);
+    parseEntCharStr(entry->Reserve, entStr, 12, 10);
+    parseEntNum(entry->DIR_WrtTime, entStr, 22, 2);
+    parseEntNum(entry->DIR_WrtDate, entStr, 24, 2);
+    parseEntNum(entry->DIR_FstClus, entStr, 26, 2);
+    parseEntNum(entry->DIR_FileSize, entStr, 28, 4);
+}
+
+void parseEnts(const Entry *entries, size_t entCnt, unsigned char *block) {
+    for (size_t i = 0; i < entCnt; i++)
+        if (i < entCnt) parseEnt(&entries[i], block + BYTSPERENT * i);
+    memset(block + BYTSPERENT * entCnt, 0, (16 - entCnt) * BYTSPERENT);
+}
+
+size_t getFreeEntIdx(unsigned char *block) {
+    for (size_t i = 0; i < 16; i++) {
+        unsigned char fstByte = block[i * BYTSPERENT];
+        if (fstByte == 0xe5 || fstByte == 0) return i;
+    }
+    return -1;
+}
+
+size_t getDirFreeEnt(size_t *blockIdx, unsigned short dirClus,
+                     unsigned char *ramFDD144) {
+    if (dirClus == 0) {
+        for (size_t baseSec = 19, secOfst = 0; secOfst < 14; secOfst++) {
+            unsigned char block[BLOCKSIZE];
+            Read_ramFDD_Block(ramFDD144, baseSec + secOfst, block);
+            size_t freeEntIdx = getFreeEntIdx(block);
+            if (freeEntIdx != (size_t)-1) {
+                *blockIdx = baseSec + secOfst;
+                return freeEntIdx;
+            }
+        }
+        return -1;
+    }
+    for (unsigned short clus = dirClus; clus != 0xfff;
+         clus = getNextClus(ramFDD144, clus)) {
+        unsigned char block[BLOCKSIZE];
+        Read_ramFDD_Block(ramFDD144, 31 + clus, block);
+        size_t freeEntIdx = getFreeEntIdx(block);
+        if (freeEntIdx != (size_t)-1) {
+            *blockIdx = 31 + clus;
+            return freeEntIdx;
+        }
+    }
+    unsigned short newNextClus = getFreeClus(ramFDD144);
+    if (newNextClus == (unsigned short)-1) return -2;
+    unsigned char block[BLOCKSIZE];
+    Read_ramFDD_Block(ramFDD144, 31 + newNextClus, block);
+    memset(block, 0, BLOCKSIZE);
+    Write_ramFDD_Block(block, ramFDD144, 31 + newNextClus);
+    *blockIdx = 31 + newNextClus;
+    return 0;
+}
+
 int mknewDir(const char *entname, unsigned short dirClus,
              unsigned char *ramFDD144) {
-    unsigned short newEntClus; // = getFreeClus();
-    Entry entries[2];
+    size_t blockIdx, entIdx;
+    entIdx = getDirFreeEnt(&blockIdx, dirClus, ramFDD144);
+    if (entIdx == (size_t)-1)
+        return -1;
+    else if (entIdx == (size_t)-2)
+        return -2;
+    unsigned short newEntClus = getFreeClus(ramFDD144);
+    if (newEntClus == (unsigned short)-1) return -2;
+
     time_t wrtTime = time(NULL);
+    unsigned char block[BLOCKSIZE];
+    Read_ramFDD_Block(ramFDD144, blockIdx, block);
+    Entry entry = mknewEnt(entname, 0x10, wrtTime, newEntClus, 0);
+    parseEnt(&entry, block + entIdx * BYTSPERENT);
+    Write_ramFDD_Block(block, ramFDD144, blockIdx);
+
+    Entry entries[2];
     entries[0] = mknewEnt(".", 0x10, wrtTime, newEntClus, 0);
     entries[1] = mknewEnt("..", 0x10, wrtTime, dirClus, 0);
-    unsigned char block[BLOCKSIZE];
-    // parseEnts(entries, block);
+    Read_ramFDD_Block(ramFDD144, newEntClus + 31, block);
+    parseEnts(entries, 2, block);
+    Write_ramFDD_Block(block, ramFDD144, newEntClus + 31);
+    addEntClus(ramFDD144, newEntClus, newEntClus);
+    return 0;
 }
 
 Entry mknewEnt(const char *entname, unsigned char attr, time_t wrtTime,
@@ -44,6 +121,7 @@ Entry mknewEnt(const char *entname, unsigned char attr, time_t wrtTime,
         else
             entry.DIR_Name[i] = ' ';
     entry.DIR_Attr = attr;
+    memset(entry.Reserve, 0, 10);
     parseTime(wrtTime, &entry.DIR_WrtTime, &entry.DIR_WrtDate);
     entry.DIR_FstClus = fstClus;
     entry.DIR_FileSize = fileSize;
@@ -56,7 +134,7 @@ void parseTime(time_t timer, unsigned short *wrtTime, unsigned short *wrtDate) {
     unsigned short min = time->tm_min;
     unsigned short sec = time->tm_sec;
     *wrtTime = (hour & 0x1f) << 11 | (min & 0x3f) << 5 | ((sec >> 1) & 0x1f);
-    
+
     unsigned short yearOfst = time->tm_year + 1900 - 1980;
     unsigned short month = time->tm_mon + 1;
     unsigned short day = time->tm_mday;

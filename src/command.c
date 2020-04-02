@@ -38,6 +38,7 @@ int mdcmd(unsigned short clus, const char *path, unsigned char *ramFDD144) {
     while (pathCopy) entname = strsep(&pathCopy, delim);
     int res = mknewDir(entname, dirClus, ramFDD144);
     if (res == -1) return -4;
+    else if (res == -2) return -5;
     free(cpyPtr);
     return 0;
 }
