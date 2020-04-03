@@ -83,7 +83,7 @@ size_t getDirFreeEnt(size_t *blockIdx, unsigned short dirClus,
     return 0;
 }
 
-int mknewDir(const char *entname, unsigned short dirClus,
+int mkdir(const char *entname, unsigned short dirClus,
              unsigned char *ramFDD144) {
     size_t blockIdx, entIdx;
     entIdx = getDirFreeEnt(&blockIdx, dirClus, ramFDD144);

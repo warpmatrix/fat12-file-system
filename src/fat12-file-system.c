@@ -45,6 +45,8 @@ int main(int argc, char const *argv[]) {
                 else if (res == -3) printCmd(&cmd), printf(": File or directory exists\n");
                 else if (res == -4) printCmd(&cmd), printf(": Root directory is full\n");
                 else if (res == -5) printCmd(&cmd), printf(": Disk is full\n");
+            } else if (!strcmp(cmd.argv[0], "rmdir")) {
+                int res = rmdircmd(clus, cmd.argv[1], ramFDD144);
             } else if (!strcmp(cmd.argv[0], "pwd")) {
                 pwdcmd(clus, ramFDD144);
             } else if (!strcmp(cmd.argv[0], "clear")) {

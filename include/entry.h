@@ -33,7 +33,7 @@ size_t getFreeEntIdx(unsigned char *block);
 size_t getDirFreeEnt(size_t *blockIdx, unsigned short dirClus,
                      unsigned char *ramFDD144);
 
-int mknewDir(const char *entname, unsigned short dirClus,
+int mkdir(const char *entname, unsigned short dirClus,
              unsigned char *ramFDD144);
 Entry mknewEnt(const char *entname, unsigned char attr, time_t secs,
                unsigned short fstClus, unsigned int size);

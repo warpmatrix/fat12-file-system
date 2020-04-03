@@ -53,7 +53,7 @@ TEST(ParseEntTest, HandlesDotDirEnt) {
         EXPECT_EQ(entStr[offset], corrEntStr[offset]) << offset;
 }
 
-TEST(MknewEntTest, HandlesExampleEnt) {
+TEST(MknewEntTest, HandlesIOSYS) {
     time_t wrtTime = 1585789263;
     Entry entry = mknewEnt("IO.SYS", 0x07, wrtTime, 0x81f, 0x9f46);
     char filename[] = "IO      SYS";
@@ -63,7 +63,18 @@ TEST(MknewEntTest, HandlesExampleEnt) {
     EXPECT_EQ(entry.DIR_WrtDate, 20610);  // 2020-04-02
     EXPECT_EQ(entry.DIR_FstClus, 0x081f);
     EXPECT_EQ(entry.DIR_FileSize, 0x00009F46);
+}
 
+TEST(MknewEntTest, HandlesDirEnt) {
+    time_t wrtTime = 1585789263;
+    Entry entry = mknewEnt("test", 0x07, wrtTime, 0x81f, 0x9f46);
+    char filename[] = "test       ";
+    for (size_t i = 0; i < 11; i++) EXPECT_EQ(entry.DIR_Name[i], filename[i]);
+    EXPECT_EQ(entry.DIR_Attr, 0x07);
+    EXPECT_EQ(entry.DIR_WrtTime, 18465);  // 09:01:02
+    EXPECT_EQ(entry.DIR_WrtDate, 20610);  // 2020-04-02
+    EXPECT_EQ(entry.DIR_FstClus, 0x081f);
+    EXPECT_EQ(entry.DIR_FileSize, 0x00009F46);
 }
 
 TEST(ParseEntsTest, HandlesEmptyDirEntry) {

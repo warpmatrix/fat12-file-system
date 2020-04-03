@@ -43,6 +43,10 @@ unsigned short parsePath(unsigned short *dirClus, const char *path,
                          const unsigned char *ramFDD144) {
     const char delim[] = "/";
     char *pathCopy = strdup(path), *cpyPtr = pathCopy;
+    if (path[0] == '/') {
+        *dirClus = 0;
+        strsep(&pathCopy, delim);
+    }
     Entry entry;
     for (const char *entname = strsep(&pathCopy, delim); entname != NULL;
          entname = strsep(&pathCopy, delim)) {
