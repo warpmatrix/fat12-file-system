@@ -15,3 +15,10 @@ The project mainly using C to simulate FAT12 file system. And it also uses googl
 - [x] restruct system (add cmd parser)
 - [x] make testing disk
 - [x] validate file size result
+
+## Structure
+
+1. utils, io
+2. entry, fat, fat12-header
+3. shell, command
+4. system

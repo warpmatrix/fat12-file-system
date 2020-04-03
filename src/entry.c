@@ -87,10 +87,8 @@ int mknewDir(const char *entname, unsigned short dirClus,
              unsigned char *ramFDD144) {
     size_t blockIdx, entIdx;
     entIdx = getDirFreeEnt(&blockIdx, dirClus, ramFDD144);
-    if (entIdx == (size_t)-1)
-        return -1;
-    else if (entIdx == (size_t)-2)
-        return -2;
+    if (entIdx == (size_t)-1) return -1;
+    if (entIdx == (size_t)-2) return -2;
     unsigned short newEntClus = getFreeClus();
     if (newEntClus == (unsigned short)-1) return -2;
 
@@ -114,12 +112,27 @@ int mknewDir(const char *entname, unsigned short dirClus,
 Entry mknewEnt(const char *entname, unsigned char attr, time_t wrtTime,
                unsigned short fstClus, unsigned int fileSize) {
     Entry entry;
-    size_t len = strlen(entname);
-    for (size_t i = 0; i < 11; i++)
-        if (i < len)
-            entry.DIR_Name[i] = entname[i];
-        else
-            entry.DIR_Name[i] = ' ';
+    if (!strcmp(entname, "."))
+        strcpy(entry.DIR_Name, ".         "), entry.DIR_Name[10] = ' ';
+    else if (!strcmp(entname, ".."))
+        strcpy(entry.DIR_Name, "..        "), entry.DIR_Name[10] = ' ';
+    else {
+        char *strCopy = strdup(entname), *cpyPtr = strCopy;
+        const char delim[] = ".";
+        char *mainFilename = strsep(&strCopy, delim);
+        for (size_t i = 0; i < 8; i++)
+            if (i < strlen(mainFilename))
+                entry.DIR_Name[i] = mainFilename[i];
+            else
+                entry.DIR_Name[i] = ' ';
+        char *extFilename = strsep(&strCopy, delim);
+        for (size_t i = 0; i < 3; i++)
+            if (extFilename && i < strlen(extFilename))
+                entry.DIR_Name[8 + i] = extFilename[i];
+            else
+                entry.DIR_Name[8 + i] = ' ';
+        free(cpyPtr);
+    }
     entry.DIR_Attr = attr;
     memset(entry.Reserve, 0, 10);
     parseTime(wrtTime, &entry.DIR_WrtTime, &entry.DIR_WrtDate);

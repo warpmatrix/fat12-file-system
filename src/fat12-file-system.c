@@ -5,6 +5,8 @@
 #include "io.h"
 #include "shell.h"
 
+#include "fat12-header.h"
+
 const char FILENAME[] = "disk/disk.flp";
 
 int init(unsigned char *ramFDD144);

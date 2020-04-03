@@ -5,5 +5,6 @@
 #include <string.h>
 
 void MY_EXPECT_STREQ(const char *diskStr, const char *str, int size);
+size_t loadFile(const char *filename, unsigned char *block);
 
 #endif

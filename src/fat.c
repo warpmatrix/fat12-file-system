@@ -18,12 +18,12 @@ int initFat(const unsigned char *ramFDD144) {
 }
 
 void writeFats(unsigned char *ramFDD144) {
-    size_t fat1BaseSec = BLOCKSIZE;
-    size_t fat2BaseSec = 10 * BLOCKSIZE;
+    size_t fat1BaseSec = 1;
+    size_t fat2BaseSec = 10;
     for (size_t secOfst = 0; secOfst < 9; secOfst++) {
         unsigned char block[BLOCKSIZE];
         for (size_t offset = 0; offset < BLOCKSIZE; offset++) {
-            block[offset] = fat[offset];
+            block[offset] = fat[secOfst * BLOCKSIZE + offset];
         }
         Write_ramFDD_Block(block, ramFDD144, fat1BaseSec + secOfst);
         Write_ramFDD_Block(block, ramFDD144, fat2BaseSec + secOfst);
@@ -41,7 +41,7 @@ unsigned short getNextClus(unsigned short clus) {
 }
 
 unsigned short getFreeClus() {
-    for (unsigned short clus = 2; clus < BLOCKNUM - 33; clus++)
+    for (unsigned short clus = 2; clus < BLOCKNUM - 31; clus++)
         if (getNextClus(clus) == 0) return clus;
     return -1;
 }
@@ -66,7 +66,7 @@ void setFatClus(unsigned short clus, unsigned short newClus) {
         fat[offset] = newClus & 0x0ff;
     } else {
         fat[offset + 1] = ((newClus & 0x00f) << 4) | (fat[offset + 1] & 0x00f);
-        fat[offset + 2] = newClus & 0xff0 >> 4;
+        fat[offset + 2] = (newClus & 0xff0) >> 4;
     }
 }
 

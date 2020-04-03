@@ -4,13 +4,14 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <time.h>
-
-extern const size_t BYTSPERENT;
 
 #include "fat.h"
 #include "io.h"
 #include "utils.h"
+
+extern const size_t BYTSPERENT;
 
 typedef struct Entry {
     char DIR_Name[11];

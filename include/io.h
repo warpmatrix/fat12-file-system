@@ -1,9 +1,10 @@
 #ifndef IO_H
 #define IO_H
 
-#include "utils.h"
 #include <stddef.h>
 #include <stdio.h>
+
+#include "utils.h"
 
 // fail to find the file , return -1;
 // otherwise, return the bytes of the file.

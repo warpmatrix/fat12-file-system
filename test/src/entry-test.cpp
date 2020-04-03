@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <string.h>
+#include "test-utils.hpp"
 
 extern "C" {
 #include "entry.h"
@@ -52,6 +53,19 @@ TEST(ParseEntTest, HandlesDotDirEnt) {
         EXPECT_EQ(entStr[offset], corrEntStr[offset]) << offset;
 }
 
+TEST(MknewEntTest, HandlesExampleEnt) {
+    time_t wrtTime = 1585789263;
+    Entry entry = mknewEnt("IO.SYS", 0x07, wrtTime, 0x81f, 0x9f46);
+    char filename[] = "IO      SYS";
+    for (size_t i = 0; i < 11; i++) EXPECT_EQ(entry.DIR_Name[i], filename[i]);
+    EXPECT_EQ(entry.DIR_Attr, 0x07);
+    EXPECT_EQ(entry.DIR_WrtTime, 18465);  // 09:01:02
+    EXPECT_EQ(entry.DIR_WrtDate, 20610);  // 2020-04-02
+    EXPECT_EQ(entry.DIR_FstClus, 0x081f);
+    EXPECT_EQ(entry.DIR_FileSize, 0x00009F46);
+
+}
+
 TEST(ParseEntsTest, HandlesEmptyDirEntry) {
     unsigned short newEntClus = 2, dirClus = 0;
     Entry entries[2];
@@ -87,6 +101,20 @@ TEST(ParseEntStrTest, HandlesExampleEntry) {
     EXPECT_EQ(entry.DIR_WrtDate, 0x1CBF);
     EXPECT_EQ(entry.DIR_FstClus, 0x0002);
     EXPECT_EQ(entry.DIR_FileSize, 0x00009F46);
+}
+
+TEST(ParseEntBlock, HandlesRootEnts) {
+    unsigned char ramFDD144[SIZE];
+    int res = Read_ramFDD(ramFDD144, "test/disk/startup.flp");
+    unsigned char block[BLOCKSIZE];
+    Read_ramFDD_Block(ramFDD144, 20, block);
+    Entry entries[16];
+    size_t entCnt = parseEntBlock(block, entries);
+    EXPECT_EQ(entCnt, 4);
+    EXPECT_EQ(entries[0].DIR_FstClus, 0x521);
+    EXPECT_EQ(entries[1].DIR_FstClus, 0x543);
+    EXPECT_EQ(entries[2].DIR_FstClus, 0x6a7);
+    EXPECT_EQ(entries[3].DIR_FstClus, 0x7eb);
 }
 
 TEST(EntnameEqTest, HandlesStrUsers) {
@@ -137,4 +165,31 @@ TEST(ParseTimeTest, HandlesExampleTime) {
     parseTime(timer, &wrtTime, &wrtDate);
     EXPECT_EQ(wrtTime, 18465);  // 09:01:02
     EXPECT_EQ(wrtDate, 20610);  // 2020-04-02
+}
+
+TEST(GetEntByNameTest, HandlesRootEntAndSubdirEnt) {
+    unsigned char ramFDD144[SIZE];
+    int res = Read_ramFDD(ramFDD144, "test/disk/test-disk.flp");
+    Entry entry = getEntByName("IO.SYS", 0, ramFDD144);
+    EXPECT_EQ(entry.DIR_FstClus, 0x002);
+    entry = getEntByName("MATRIX", 0x81f, ramFDD144);
+    EXPECT_EQ(entry.DIR_FstClus, 0x821);
+}
+
+TEST(GetEntByNameTest, HandlesNullEnt) {
+    unsigned char ramFDD144[SIZE];
+    int res = Read_ramFDD(ramFDD144, "test/disk/test-disk.flp");
+    Entry entry = getEntByName("null.ent", 0, ramFDD144);
+    EXPECT_EQ(entry.DIR_FstClus, (unsigned short)-1);
+}
+
+TEST(GetEntByClusTest, HandlesRootEntAndSubdirEnt) {
+    unsigned char ramFDD144[SIZE];
+    int res = Read_ramFDD(ramFDD144, "test/disk/test-disk.flp");
+    Entry entry = getEntByClus(0x81f, 0, ramFDD144);
+    MY_EXPECT_STREQ(entry.DIR_Name, "USER", 11);
+    EXPECT_EQ(entry.DIR_FstClus, 0x81f);
+    entry = getEntByClus(0x821, 0x81f, ramFDD144);
+    MY_EXPECT_STREQ(entry.DIR_Name, "MATRIX", 11);
+    EXPECT_EQ(entry.DIR_FstClus, 0x821);
 }
