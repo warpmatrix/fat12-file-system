@@ -64,7 +64,7 @@ size_t getDirFreeEnt(size_t *blockIdx, unsigned short dirClus,
         return -1;
     }
     for (unsigned short clus = dirClus; clus != 0xfff;
-         clus = getNextClus(ramFDD144, clus)) {
+         clus = getNextClus(clus)) {
         unsigned char block[BLOCKSIZE];
         Read_ramFDD_Block(ramFDD144, 31 + clus, block);
         size_t freeEntIdx = getFreeEntIdx(block);
@@ -73,7 +73,7 @@ size_t getDirFreeEnt(size_t *blockIdx, unsigned short dirClus,
             return freeEntIdx;
         }
     }
-    unsigned short newNextClus = getFreeClus(ramFDD144);
+    unsigned short newNextClus = getFreeClus();
     if (newNextClus == (unsigned short)-1) return -2;
     unsigned char block[BLOCKSIZE];
     Read_ramFDD_Block(ramFDD144, 31 + newNextClus, block);
@@ -91,7 +91,7 @@ int mknewDir(const char *entname, unsigned short dirClus,
         return -1;
     else if (entIdx == (size_t)-2)
         return -2;
-    unsigned short newEntClus = getFreeClus(ramFDD144);
+    unsigned short newEntClus = getFreeClus();
     if (newEntClus == (unsigned short)-1) return -2;
 
     time_t wrtTime = time(NULL);
@@ -107,7 +107,7 @@ int mknewDir(const char *entname, unsigned short dirClus,
     Read_ramFDD_Block(ramFDD144, newEntClus + 31, block);
     parseEnts(entries, 2, block);
     Write_ramFDD_Block(block, ramFDD144, newEntClus + 31);
-    addEntClus(ramFDD144, newEntClus, newEntClus);
+    addEntClus(newEntClus, newEntClus);
     return 0;
 }
 
@@ -168,7 +168,7 @@ void listEnts(unsigned short fstClus, const unsigned char *ramFDD144) {
         printEnts(entries, entCnt), printf("\n");
     } else {
         for (unsigned short clus = fstClus; clus != 0xfff;
-             clus = getNextClus(ramFDD144, clus)) {
+             clus = getNextClus(clus)) {
             unsigned char block[BLOCKSIZE];
             Read_ramFDD_Block(ramFDD144, clus + 31, block);
             Entry entries[16];
@@ -249,7 +249,7 @@ Entry getEntByName(const char *entname, unsigned short dirClus,
         return entry;
     } else {
         for (unsigned short clus = dirClus; clus != 0xfff;
-             clus = getNextClus(ramFDD144, clus)) {
+             clus = getNextClus(clus)) {
             unsigned char block[BLOCKSIZE];
             Read_ramFDD_Block(ramFDD144, clus + 31, block);
             Entry entries[16];
@@ -277,7 +277,7 @@ Entry getEntByClus(unsigned short entClus, unsigned short dirClus,
         return entry;
     } else {
         for (unsigned short clus = dirClus; clus != 0xfff;
-             clus = getNextClus(ramFDD144, clus)) {
+             clus = getNextClus(clus)) {
             unsigned char block[BLOCKSIZE];
             Read_ramFDD_Block(ramFDD144, clus + 31, block);
             Entry entries[16];

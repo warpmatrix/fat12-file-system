@@ -1,6 +1,6 @@
 #include "command.h"
 
-int dircmd(unsigned short curClus, const char *path,
+int lscmd(unsigned short curClus, const char *path,
            const unsigned char *ramFDD144) {
     unsigned short entClus = curClus, dirClus = curClus;
     if (path) entClus = parsePath(&dirClus, path, ramFDD144);
@@ -26,7 +26,7 @@ int cdcmd(unsigned short *clus, const char *path,
     return 0;
 }
 
-int mdcmd(unsigned short clus, const char *path, unsigned char *ramFDD144) {
+int mkdircmd(unsigned short clus, const char *path, unsigned char *ramFDD144) {
     if (!path) return -1;  // missing operand
     unsigned short dirClus = clus;
     unsigned short entClus = parsePath(&dirClus, path, ramFDD144);

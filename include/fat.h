@@ -6,11 +6,15 @@
 #include "utils.h"
 #include "entry.h"
 
-unsigned short getNextClus(const unsigned char *ramFDD144, unsigned short clus);
-unsigned short getFatClus(const unsigned char *fat, unsigned short clus);
-unsigned short getFreeClus(const unsigned char *ramFDD144);
+int initFat(const unsigned char *ramFDD144);
+void writeFats(unsigned char *ramFDD144);
 
-void addEntClus(unsigned char *ramFDD144, unsigned short fstClus, unsigned short newClus);
-void setFatClus(unsigned char *fat, unsigned short clus, unsigned short newClus);
+unsigned short getNextClus(unsigned short clus);
+unsigned short getFreeClus();
+
+void addEntClus(unsigned short fstClus, unsigned short newClus);
+void setFatClus(unsigned short clus, unsigned short newClus);
+
+const unsigned char *getFat();
 
 #endif

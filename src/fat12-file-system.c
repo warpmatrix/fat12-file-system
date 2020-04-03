@@ -15,7 +15,9 @@ int main(int argc, char const *argv[]) {
     if (res == -1) {
         printf("Cannot find the disk\n");
         return 0;
-    } else if (res != SIZE) {
+    } else if (res == -2) {
+        printf("File allocation table error\n");
+    } else if (res >=0 && res < SIZE) {
         printf("File size(%d) doesn't match\n", res);
         return 0;
     } else {
@@ -28,14 +30,14 @@ int main(int argc, char const *argv[]) {
     Command cmd = inputCmd();
     while (cmd.argc == 0 || cmd.argc > 0 && strcmp(cmd.argv[0], "quit")) {
         if (cmd.argc > 0)
-            if (!strcmp(cmd.argv[0], "dir")) {
-                int res = dircmd(clus, cmd.argv[1], ramFDD144);
+            if (!strcmp(cmd.argv[0], "ls")) {
+                int res = lscmd(clus, cmd.argv[1], ramFDD144);
                 if (res == -1) printCmd(&cmd), printf(": No such directory\n");
             } else if (!strcmp(cmd.argv[0], "cd")) {
                 int res = cdcmd(&clus, cmd.argv[1], ramFDD144);
                 if (res == -1) printCmd(&cmd), printf(": No such directory\n");
-            } else if (!strcmp(cmd.argv[0], "md")) {
-                int res = mdcmd(clus, cmd.argv[1], ramFDD144);
+            } else if (!strcmp(cmd.argv[0], "mkdir")) {
+                int res = mkdircmd(clus, cmd.argv[1], ramFDD144);
                 if (res == -1) printCmd(&cmd), printf(": Missing operand\n");
                 else if (res == -2) printCmd(&cmd), printf(": No such directory\n");
                 else if (res == -3) printCmd(&cmd), printf(": File or directory exists\n");
@@ -67,5 +69,9 @@ int init(unsigned char *ramFDD144) {
     Fat12Header mbr = parseMbr(block);
     printMbrInfo(mbr);
     printf("\n");
+
+    int res = initFat(ramFDD144);
+    if (res == -1) return -2;
+
     return cnt;
 }

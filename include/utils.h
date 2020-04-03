@@ -8,7 +8,7 @@
 #include <ctype.h>
 
 #define BLOCKNUM 2880
-extern const int BLOCKSIZE;
+#define BLOCKSIZE 512
 extern const int SIZE;
 extern const char FILENAME[];
 

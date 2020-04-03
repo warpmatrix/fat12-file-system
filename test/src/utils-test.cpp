@@ -81,6 +81,8 @@ TEST(ParsePathTest, HandlesSubDirEntry) {
     unsigned char ramFDD144[SIZE];
     int res = Read_ramFDD(ramFDD144, "test/disk/test-disk.flp");
     EXPECT_EQ(res, SIZE);
+    res = initFat(ramFDD144);
+    EXPECT_EQ(res, 0);
 
     unsigned short dirClus = 0;
     unsigned short entClus = parsePath(&dirClus, "USER", ramFDD144);
@@ -102,6 +104,8 @@ TEST(ParsePathTest, HandlesNullEntry) {
     unsigned char ramFDD144[SIZE];
     int res = Read_ramFDD(ramFDD144, "test/disk/test-disk.flp");
     EXPECT_EQ(res, SIZE);
+    res = initFat(ramFDD144);
+    EXPECT_EQ(res, 0);
 
     unsigned short dirClus = 0;
     unsigned short entClus = parsePath(&dirClus, "null.ent", ramFDD144);

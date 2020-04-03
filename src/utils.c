@@ -1,6 +1,5 @@
 #include "utils.h"
 
-const int BLOCKSIZE = 512;
 const int SIZE = 1474560;  // 2880 * 512
 
 bool diskStrEq(const char *str, const char *diskStr, int size) {
@@ -24,12 +23,14 @@ void parseStr(const unsigned char *block, size_t base, size_t len, char *str) {
         str[offset] = block[base + offset];
 }
 
-void parseEntNum(unsigned int entNum, unsigned char *entStr, size_t base, size_t len) {
+void parseEntNum(unsigned int entNum, unsigned char *entStr, size_t base,
+                 size_t len) {
     for (size_t offset = 0; offset < len; offset++)
         entStr[base + offset] = entNum & 0xff, entNum >>= 8;
 }
 
-void parseEntCharStr(const char *entCharStr, unsigned char *entStr, size_t base, size_t len) {
+void parseEntCharStr(const char *entCharStr, unsigned char *entStr, size_t base,
+                     size_t len) {
     for (size_t offset = 0; offset < len; offset++)
         entStr[base + offset] = entCharStr[offset];
 }
