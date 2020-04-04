@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "entry.h"
+#include "dir-entry.h"
 #include "shell.h"
 
 int lscmd(unsigned short curClus, const char *path,

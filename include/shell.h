@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "entry.h"
+#include "dir-entry.h"
 
 #define CMDLEN 256
 

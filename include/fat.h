@@ -4,7 +4,7 @@
 #include <stddef.h>
 
 #include "utils.h"
-#include "entry.h"
+#include "io.h"
 
 int initFat(const unsigned char *ramFDD144);
 void writeFats(unsigned char *ramFDD144);
