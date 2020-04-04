@@ -15,6 +15,8 @@ unsigned short getFreeClus();
 void addEntClus(unsigned short fstClus, unsigned short newClus);
 void setFatClus(unsigned short clus, unsigned short newClus);
 
+void clearClus(unsigned short entClus);
+
 const unsigned char *getFat();
 
 #endif

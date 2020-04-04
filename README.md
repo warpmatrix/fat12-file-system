@@ -18,7 +18,8 @@ The project mainly using C to simulate FAT12 file system. And it also uses googl
 
 ## Structure
 
-1. utils, io, entry
-2. dir-entry, fat, fat12-header
-3. shell, command
-4. system
+1. utils, io
+2. entry, fat, fat12-header
+3. dir-entry
+4. shell, command
+5. system

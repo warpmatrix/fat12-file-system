@@ -13,7 +13,7 @@ TEST(InitFatTest, HandlesFatImg) {
         << "Can't find the disk file or file size doesn't match";
 
     int res = initFat(ramFDD144);
-    EXPECT_EQ(res, 0);
+    ASSERT_EQ(res, 0) << "Init error";
 
     const unsigned char *fat = getFat();
     size_t fat1BaseSec = 1, fat2BaseSec = 10;
@@ -32,7 +32,7 @@ TEST(WriteFatsTest, HandlesFatImg) {
     ASSERT_EQ(cnt, BLOCKSIZE * 19)
         << "Can't find the disk file or file size doesn't match";
     int res = initFat(ramFDD144);
-    EXPECT_EQ(res, 0);
+    ASSERT_EQ(res, 0) << "Init error";
 
     EXPECT_EQ(getFreeClus(), 0x81f);
     for (size_t baseClus = 0x81f, clusOfst = 0; clusOfst < 2847 - 0x81d;
@@ -55,8 +55,8 @@ TEST(WriteFatsTest, HandlesFatImg) {
             nextClus2 = (ramFDD144[fat2Base + offset + 2] << 4) |
                         ((ramFDD144[fat2Base + offset + 1] >> 4) & 0x0f);
         }
-        EXPECT_EQ(nextClus1, getNextClus(clus)) << clus;
-        EXPECT_EQ(nextClus2, getNextClus(clus)) << clus;
+        EXPECT_EQ(nextClus1, getNextClus(clus));
+        EXPECT_EQ(nextClus2, getNextClus(clus));
     }
 }
 
@@ -66,7 +66,7 @@ TEST(GetNextClusTest, HandlesIOSYS) {
     ASSERT_EQ(cnt, BLOCKSIZE * 19)
         << "Can't find the disk file or file size doesn't match";
     int res = initFat(ramFDD144);
-    EXPECT_EQ(res, 0);
+    ASSERT_EQ(res, 0) << "Init error";
     for (unsigned short clus = 0x002; clus != 0xfff; clus = getNextClus(clus))
         if (clus != 0x051)
             EXPECT_EQ(getNextClus(clus), clus + 1);
@@ -80,7 +80,7 @@ TEST(GetFreeClusTest, HandlesGetOneFreeClus) {
     ASSERT_EQ(cnt, BLOCKSIZE * 19)
         << "Can't find the disk file or file size doesn't match";
     int res = initFat(ramFDD144);
-    EXPECT_EQ(res, 0);
+    ASSERT_EQ(res, 0) << "Init error";
     EXPECT_EQ(getFreeClus(), 0x81f);
 }
 
@@ -90,7 +90,7 @@ TEST(GetFreeClusTest, HandlesNoFreeClus) {
     ASSERT_EQ(cnt, BLOCKSIZE * 19)
         << "Can't find the disk file or file size doesn't match";
     int res = initFat(ramFDD144);
-    EXPECT_EQ(res, 0);
+    ASSERT_EQ(res, 0) << "Init error";
 
     EXPECT_EQ(getFreeClus(), 0x81f);
     for (size_t baseClus = 0x81f, clusOfst = 0; clusOfst < 2847 - 0x81d;
@@ -105,7 +105,7 @@ TEST(SetFatClusTest, HandlesFatImg) {
     ASSERT_EQ(cnt, BLOCKSIZE * 19)
         << "Can't find the disk file or file size doesn't match";
     int res = initFat(ramFDD144);
-    EXPECT_EQ(res, 0);
+    ASSERT_EQ(res, 0) << "Init error";
 
     EXPECT_EQ(getFreeClus(), 0x81f);
     setFatClus(0x81f, 0xfff);
@@ -123,7 +123,7 @@ TEST(AddEntClusTest, HandlesFatImg) {
     ASSERT_EQ(cnt, BLOCKSIZE * 19)
         << "Can't find the disk file or file size doesn't match";
     int res = initFat(ramFDD144);
-    EXPECT_EQ(res, 0);
+    ASSERT_EQ(res, 0) << "Init error";
 
     EXPECT_EQ(getNextClus(0x81f), 0x000);
     addEntClus(0x81f, 0x81f);
@@ -132,4 +132,31 @@ TEST(AddEntClusTest, HandlesFatImg) {
     addEntClus(0x81f, 0x820);
     EXPECT_EQ(getNextClus(0x81f), 0x820);
     EXPECT_EQ(getNextClus(0x820), 0xfff);
+}
+
+TEST(ClearClusTest, HandlesIOSYS) {
+    unsigned char ramFDD144[BLOCKSIZE * 19];
+    size_t cnt = loadFile("test/disk/fat.img", ramFDD144);
+    ASSERT_EQ(cnt, BLOCKSIZE * 19)
+        << "Can't find the disk file or file size doesn't match";
+    int res = initFat(ramFDD144);
+    ASSERT_EQ(res, 0) << "Init error";
+
+    clearClus(0x002);
+    EXPECT_EQ(getNextClus(0x000), 0xff0);
+    EXPECT_EQ(getNextClus(0x001), 0xfff);
+    for (unsigned short clus = 0x002; clus < 0x052; clus++)
+        EXPECT_EQ(getNextClus(clus), 0);
+    for (unsigned short clus = 0x052; clus < 0x81f; clus++)
+        if (clus == 0x09d - 1 || clus == 0x108 - 1 || clus == 0x18a - 1 ||
+            clus == 0x1a0 - 1 || clus == 0x1b8 - 1 || clus == 0x1d7 - 1 ||
+            clus == 0x1f7 - 1 || clus == 0x231 - 1 || clus == 0x25e - 1 ||
+            clus == 0x29e - 1 || clus == 0x2b1 - 1 || clus == 0x2b2 - 1 ||
+            clus == 0x42e - 1 || clus == 0x521 - 1 || clus == 0x543 - 1 ||
+            clus == 0x6a7 - 1 || clus == 0x7eb - 1 || clus == 0x81f - 1)
+            EXPECT_EQ(getNextClus(clus), 0xfff);
+        else
+            EXPECT_EQ(getNextClus(clus), clus + 1);
+    for (unsigned short clus = 0x81f; clus < BLOCKSIZE - 31; clus++)
+        EXPECT_EQ(getNextClus(clus), 0);
 }

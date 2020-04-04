@@ -70,6 +70,13 @@ void setFatClus(unsigned short clus, unsigned short newClus) {
     }
 }
 
+void clearClus(unsigned short entClus) {
+    for (unsigned short nextClus = getNextClus(entClus); nextClus != 0xfff;
+         entClus = nextClus, nextClus = getNextClus(entClus))
+        setFatClus(entClus, 0);
+    setFatClus(entClus, 0);
+}
+
 const unsigned char *getFat() {
     return fat;
 }

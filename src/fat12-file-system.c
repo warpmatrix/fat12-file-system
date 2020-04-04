@@ -43,10 +43,18 @@ int main(int argc, char const *argv[]) {
                 if (res == -1) printCmd(&cmd), printf(": Missing operand\n");
                 else if (res == -2) printCmd(&cmd), printf(": No such directory\n");
                 else if (res == -3) printCmd(&cmd), printf(": File or directory exists\n");
-                else if (res == -4) printCmd(&cmd), printf(": Root directory is full\n");
-                else if (res == -5) printCmd(&cmd), printf(": Disk is full\n");
+                else if (res == -4) printCmd(&cmd), printf(": Directory name contains '.'\n");
+                else if (res == -5) printCmd(&cmd), printf(": Root directory is full\n");
+                else if (res == -6) printCmd(&cmd), printf(": Disk is full\n");
             } else if (!strcmp(cmd.argv[0], "rmdir")) {
                 int res = rmdircmd(clus, cmd.argv[1], ramFDD144);
+                if (res == -1) printCmd(&cmd), printf(": Missing operand\n");
+                else if (res == -2) printCmd(&cmd), printf(": No such directory\n");
+                else if (res == -3) printCmd(&cmd), printf(": Can't remove present directory\n");
+                else if (res == -4) printCmd(&cmd), printf(": Not a directory\n");
+                else if (res == -5) printCmd(&cmd), printf(": Invalid argument\n");
+                else if (res == -6) printCmd(&cmd), printf(": Directory not empty\n");
+                else if (res == -7) printCmd(&cmd), printf(": Directory entry number error\n");;
             } else if (!strcmp(cmd.argv[0], "pwd")) {
                 pwdcmd(clus, ramFDD144);
             } else if (!strcmp(cmd.argv[0], "clear")) {

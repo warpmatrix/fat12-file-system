@@ -11,6 +11,8 @@
 #include "io.h"
 #include "utils.h"
 
+static const size_t BYTSPERENT = 32;
+
 typedef struct Entry {
     char DIR_Name[11];
     unsigned char DIR_Attr;
@@ -26,6 +28,10 @@ void parseEnt(const Entry *entry, unsigned char *entStr);
 
 Entry mknewEnt(const char *entname, unsigned char attr, time_t secs,
                unsigned short fstClus, unsigned int size);
+bool markEntDel(unsigned short entClus, unsigned char *block);
+int rment(unsigned short entClus, unsigned short dirClus,
+          unsigned char *ramFDD144);
+
 void parseTime(time_t time, unsigned short *wrtTime, unsigned short *wrtDate);
 void parseWriTime(unsigned short DIR_WrtTime, unsigned short DIR_WrtDate,
                   char *time);

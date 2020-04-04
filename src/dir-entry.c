@@ -60,12 +60,13 @@ size_t getDirFreeEnt(size_t *blockIdx, unsigned short dirClus,
 
 int mkdirent(const char *entname, unsigned short dirClus,
              unsigned char *ramFDD144) {
+    if (strstr(entname, ".")) return -1;
     size_t blockIdx, entIdx;
     entIdx = getDirFreeEnt(&blockIdx, dirClus, ramFDD144);
-    if (entIdx == (size_t)-1) return -1;
-    if (entIdx == (size_t)-2) return -2;
+    if (entIdx == (size_t)-1) return -2;
+    if (entIdx == (size_t)-2) return -3;
     unsigned short newEntClus = getFreeClus();
-    if (newEntClus == (unsigned short)-1) return -2;
+    if (newEntClus == (unsigned short)-1) return -3;
 
     time_t wrtTime = time(NULL);
     unsigned char block[BLOCKSIZE];
