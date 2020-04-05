@@ -14,10 +14,12 @@
 #define BYTSPERENT 32
 
 #define DIR_ATTR 0x10
+#define FILE_ATTR 0x20
+#define HIDN_ATTR 0x27
 #define PROT_ATTR 0x27
 
 typedef struct Entry {
-    char DIR_Name[11];
+    char DIR_Name[12];
     unsigned char DIR_Attr;
     char Reserve[10];
     unsigned short DIR_WrtTime;
@@ -28,12 +30,8 @@ typedef struct Entry {
 
 Entry parseEntStr(const unsigned char *entryStr);
 void parseEnt(const Entry *entry, unsigned char *entStr);
-
-Entry mknewEnt(const char *entname, unsigned char attr, time_t secs,
-               unsigned short fstClus, unsigned int size);
-bool markEntDel(unsigned short entClus, unsigned char *block);
-int rment(unsigned short entClus, unsigned short dirClus,
-          unsigned char *ramFDD144);
+Entry getEnt(const char *entname, unsigned char attr, time_t secs,
+             unsigned short fstClus, unsigned int size);
 
 void parseTime(time_t time, unsigned short *wrtTime, unsigned short *wrtDate);
 void parseWriTime(unsigned short DIR_WrtTime, unsigned short DIR_WrtDate,

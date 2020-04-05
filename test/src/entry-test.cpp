@@ -37,7 +37,7 @@ TEST(ParseWriTimeTest, HandlesExampleTime) {
 TEST(ParseEntTest, HandlesDotDirEnt) {
     Entry entry;
     strcpy(entry.DIR_Name, ".         "), entry.DIR_Name[10] = ' ';
-    entry.DIR_Attr = 0x10;
+    entry.DIR_Attr = DIR_ATTR;
     memset(entry.Reserve, 0, 10);
     entry.DIR_WrtTime = 0x4AAE;
     entry.DIR_WrtDate = 0x4936;
@@ -53,9 +53,9 @@ TEST(ParseEntTest, HandlesDotDirEnt) {
         EXPECT_EQ(entStr[offset], corrEntStr[offset]) << offset;
 }
 
-TEST(MknewEntTest, HandlesIOSYS) {
+TEST(GetEntTest, HandlesIOSYS) {
     time_t wrtTime = 1585789263;
-    Entry entry = mknewEnt("IO.SYS", 0x07, wrtTime, 0x81f, 0x9f46);
+    Entry entry = getEnt("IO.SYS", 0x07, wrtTime, 0x81f, 0x9f46);
     char filename[] = "IO      SYS";
     for (size_t i = 0; i < 11; i++) EXPECT_EQ(entry.DIR_Name[i], filename[i]);
     EXPECT_EQ(entry.DIR_Attr, 0x07);
@@ -65,9 +65,9 @@ TEST(MknewEntTest, HandlesIOSYS) {
     EXPECT_EQ(entry.DIR_FileSize, 0x00009F46);
 }
 
-TEST(MknewEntTest, HandlesDirEnt) {
+TEST(GetEntTest, HandlesDirEnt) {
     time_t wrtTime = 1585789263;
-    Entry entry = mknewEnt("test", 0x07, wrtTime, 0x81f, 0x9f46);
+    Entry entry = getEnt("test", 0x07, wrtTime, 0x81f, 0x9f46);
     char filename[] = "test       ";
     for (size_t i = 0; i < 11; i++) EXPECT_EQ(entry.DIR_Name[i], filename[i]);
     EXPECT_EQ(entry.DIR_Attr, 0x07);

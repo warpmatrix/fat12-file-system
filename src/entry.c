@@ -22,8 +22,8 @@ void parseEnt(const Entry *entry, unsigned char *entStr) {
     parseEntNum(entry->DIR_FileSize, entStr, 28, 4);
 }
 
-Entry mknewEnt(const char *entname, unsigned char attr, time_t wrtTime,
-               unsigned short fstClus, unsigned int fileSize) {
+Entry getEnt(const char *entname, unsigned char attr, time_t wrtTime,
+             unsigned short fstClus, unsigned int fileSize) {
     Entry entry;
     if (!strcmp(entname, "."))
         strcpy(entry.DIR_Name, ".         "), entry.DIR_Name[10] = ' ';
@@ -52,41 +52,6 @@ Entry mknewEnt(const char *entname, unsigned char attr, time_t wrtTime,
     entry.DIR_FstClus = fstClus;
     entry.DIR_FileSize = fileSize;
     return entry;
-}
-
-bool markEntDel(unsigned short entClus, unsigned char *block) {
-    for (size_t i = 0; i < 16; i++) {
-        Entry entry = parseEntStr(block + i * BYTSPERENT);
-        if (entry.DIR_FstClus == entClus) {
-            block[i * BYTSPERENT] = 0xe5;
-            return true;
-        }
-    }
-    return false;
-}
-
-int rment(unsigned short entClus, unsigned short dirClus,
-          unsigned char *ramFDD144) {
-    if (dirClus == 0) {
-        for (size_t baseSec = 19, secOfst = 0; secOfst < 14; secOfst++) {
-            unsigned char block[BLOCKSIZE];
-            Read_ramFDD_Block(ramFDD144, baseSec + secOfst, block);
-            if (markEntDel(entClus, block)) {
-                Write_ramFDD_Block(block, ramFDD144, baseSec + secOfst);
-                break;
-            }
-        }
-    } else
-        for (unsigned short clus = dirClus; clus != 0xfff;
-             clus = getNextClus(clus)) {
-            unsigned char block[BLOCKSIZE];
-            Read_ramFDD_Block(ramFDD144, 31 + clus, block);
-            if (markEntDel(entClus, block)) {
-                Write_ramFDD_Block(block, ramFDD144, 31 + clus);
-                break;
-            }
-        }
-    clearClus(entClus);
 }
 
 void parseTime(time_t timer, unsigned short *wrtTime, unsigned short *wrtDate) {

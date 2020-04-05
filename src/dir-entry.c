@@ -55,7 +55,62 @@ size_t getDirFreeEnt(size_t *blockIdx, unsigned short dirClus,
     memset(block, 0, BLOCKSIZE);
     Write_ramFDD_Block(block, ramFDD144, 31 + newNextClus);
     *blockIdx = 31 + newNextClus;
+    addEntClus(dirClus, newNextClus);
     return 0;
+}
+
+int mkent(const char *entname, unsigned short dirClus,
+          unsigned char *ramFDD144) {
+    size_t blockIdx, entIdx;
+    entIdx = getDirFreeEnt(&blockIdx, dirClus, ramFDD144);
+    if (entIdx == (size_t)-1) return -1;
+    if (entIdx == (size_t)-2) return -2;
+    unsigned short newEntClus = getFreeClus();
+    if (newEntClus == (unsigned short)-1) return -3;
+
+    unsigned char block[BLOCKSIZE];
+    Read_ramFDD_Block(ramFDD144, blockIdx, block);
+    time_t wrtTime = time(NULL);
+    Entry entry = getEnt(entname, FILE_ATTR, wrtTime, newEntClus, 0);
+    parseEnt(&entry, block + entIdx * BYTSPERENT);
+    Write_ramFDD_Block(block, ramFDD144, blockIdx);
+    addEntClus(newEntClus, newEntClus);
+    return 0;
+}
+
+bool markEntDel(unsigned short entClus, unsigned char *block) {
+    for (size_t i = 0; i < 16; i++) {
+        Entry entry = parseEntStr(block + i * BYTSPERENT);
+        if (entry.DIR_FstClus == entClus) {
+            block[i * BYTSPERENT] = 0xe5;
+            return true;
+        }
+    }
+    return false;
+}
+
+int rment(unsigned short entClus, unsigned short dirClus,
+          unsigned char *ramFDD144) {
+    if (dirClus == 0) {
+        for (size_t baseSec = 19, secOfst = 0; secOfst < 14; secOfst++) {
+            unsigned char block[BLOCKSIZE];
+            Read_ramFDD_Block(ramFDD144, baseSec + secOfst, block);
+            if (markEntDel(entClus, block)) {
+                Write_ramFDD_Block(block, ramFDD144, baseSec + secOfst);
+                break;
+            }
+        }
+    } else
+        for (unsigned short clus = dirClus; clus != 0xfff;
+             clus = getNextClus(clus)) {
+            unsigned char block[BLOCKSIZE];
+            Read_ramFDD_Block(ramFDD144, 31 + clus, block);
+            if (markEntDel(entClus, block)) {
+                Write_ramFDD_Block(block, ramFDD144, 31 + clus);
+                break;
+            }
+        }
+    clearClus(entClus);
 }
 
 int mkdirent(const char *entname, unsigned short dirClus,
@@ -68,16 +123,16 @@ int mkdirent(const char *entname, unsigned short dirClus,
     unsigned short newEntClus = getFreeClus();
     if (newEntClus == (unsigned short)-1) return -3;
 
-    time_t wrtTime = time(NULL);
     unsigned char block[BLOCKSIZE];
     Read_ramFDD_Block(ramFDD144, blockIdx, block);
-    Entry entry = mknewEnt(entname, 0x10, wrtTime, newEntClus, 0);
+    time_t wrtTime = time(NULL);
+    Entry entry = getEnt(entname, DIR_ATTR, wrtTime, newEntClus, 0);
     parseEnt(&entry, block + entIdx * BYTSPERENT);
     Write_ramFDD_Block(block, ramFDD144, blockIdx);
 
     Entry entries[2];
-    entries[0] = mknewEnt(".", 0x10, wrtTime, newEntClus, 0);
-    entries[1] = mknewEnt("..", 0x10, wrtTime, dirClus, 0);
+    entries[0] = getEnt(".", DIR_ATTR, wrtTime, newEntClus, 0);
+    entries[1] = getEnt("..", DIR_ATTR, wrtTime, dirClus, 0);
     Read_ramFDD_Block(ramFDD144, newEntClus + 31, block);
     parseEnts(entries, 2, block);
     Write_ramFDD_Block(block, ramFDD144, newEntClus + 31);
@@ -87,13 +142,13 @@ int mkdirent(const char *entname, unsigned short dirClus,
 
 void printEnts(const Entry *entries, int entCnt) {
     for (size_t i = 0; i < entCnt; i++) {
-        if (entries[i].DIR_Attr == 0x27) continue;
+        if (entries[i].DIR_Attr == HIDN_ATTR) continue;
         printf("DIR_Name: "), printStr(entries[i].DIR_Name, 11);
         printf(",    DIR_Attr: 0x%02X", entries[i].DIR_Attr);
         char time[20];
         parseWriTime(entries[i].DIR_WrtTime, entries[i].DIR_WrtDate, time);
         printf(",    WrtTime: %s", time);
-        if (entries[i].DIR_Attr != 0x10)
+        if (entries[i].DIR_Attr != DIR_ATTR)
             printf(",    FileSize: %d Bytes\n", entries[i].DIR_FileSize);
         else
             printf("\n");

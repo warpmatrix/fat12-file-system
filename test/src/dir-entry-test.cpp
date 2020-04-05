@@ -10,8 +10,8 @@ TEST(ParseEntsTest, HandlesEmptyDirEntry) {
     unsigned short newEntClus = 2, dirClus = 0;
     Entry entries[2];
     time_t wrtTime = 1585789263;
-    entries[0] = mknewEnt(".", 0x10, wrtTime, newEntClus, 0);
-    entries[1] = mknewEnt("..", 0x10, wrtTime, dirClus, 0);
+    entries[0] = getEnt(".", DIR_ATTR, wrtTime, newEntClus, 0);
+    entries[1] = getEnt("..", DIR_ATTR, wrtTime, dirClus, 0);
     unsigned char block[BLOCKSIZE];
     parseEnts(entries, 2, block);
     unsigned char entStr1[] =
