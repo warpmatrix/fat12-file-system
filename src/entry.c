@@ -54,6 +54,23 @@ Entry getEnt(const char *entname, unsigned char attr, time_t wrtTime,
     return entry;
 }
 
+int dispFile(const Entry *fileEnt, const unsigned char *ramFDD144) {
+    size_t bytsCnt = 0;
+    for (unsigned short clus = fileEnt->DIR_FstClus; clus != 0xfff;
+         clus = getNextClus(clus)) {
+        unsigned char block[BLOCKSIZE];
+        Read_ramFDD_Block(ramFDD144, 31 + clus, block);
+        for (size_t offset = 0; offset < BLOCKSIZE; offset++, bytsCnt++) {
+            if (bytsCnt == fileEnt->DIR_FileSize) {
+                if (getNextClus(clus) != 0xfff) return -1;
+                break;
+            }
+            printf("%c", block[offset]);
+        }
+    }
+    return 0;
+}
+
 void parseTime(time_t timer, unsigned short *wrtTime, unsigned short *wrtDate) {
     struct tm *time = localtime(&timer);
     unsigned short hour = time->tm_hour;

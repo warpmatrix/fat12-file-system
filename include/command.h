@@ -15,6 +15,7 @@ int mkdircmd(unsigned short clus, const char *path, unsigned char *ramFDD144);
 int rmdircmd(unsigned short clus, const char *path, unsigned char *ramFDD144);
 int touchcmd(unsigned short clus, const char *path, unsigned char *ramFDD144);
 int rmcmd(unsigned short clus, const char *path, unsigned char *ramFDD144);
+int catcmd(unsigned short clus, const char *path, const unsigned char *ramFDD144);
 void pwdcmd(unsigned short clus, const unsigned char *ramFDD144);
 void clearcmd(void);
 
