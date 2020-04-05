@@ -4,7 +4,7 @@ The project mainly using C to simulate FAT12 file system. And it also uses googl
 
 ## To Do List
 
-- [ ] add cmd: edit
+- [ ] add cmd: edit, tree
 - [ ] restruct: parsePath
 - [ ] modify: cmd pwd
 - [x] add cmd: rmdir, rm, touch, cat, cp
@@ -20,7 +20,7 @@ The project mainly using C to simulate FAT12 file system. And it also uses googl
 ## Structure
 
 1. utils, io
-2. entry, fat, fat12-header
-3. dir-entry
+2. entry, fat, fat12-header, dir-entry
+3. operation
 4. shell, command
 5. system
