@@ -26,4 +26,6 @@ size_t findPath(char (*path)[12], unsigned short entClus,
                 const unsigned char *ramFDD144);
 void printPath(unsigned short clus, const unsigned char *ramFDD144);
 
+char *getPathEntname(const char *path, char *entname);
+
 #endif

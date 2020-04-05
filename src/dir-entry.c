@@ -113,6 +113,51 @@ int rment(unsigned short entClus, unsigned short dirClus,
     clearClus(entClus);
 }
 
+int cpent(const Entry *entry, const char *destEntname,
+          unsigned short destDirClus, unsigned char *ramFDD144) {
+    size_t blockIdx, entIdx;
+    entIdx = getDirFreeEnt(&blockIdx, destDirClus, ramFDD144);
+    if (entIdx == (size_t)-1) return -1;
+    if (entIdx == (size_t)-2) return -2;
+    unsigned short destFstClus = getFreeClus();
+    if (destFstClus == (unsigned short)-1) return -2;
+    for (unsigned short clus = entry->DIR_FstClus; clus != 0xfff;
+         clus = getNextClus(clus)) {
+        unsigned short newClus = getFreeClus();
+        if (newClus == (unsigned short)-1) {
+            clearClus(destFstClus);
+            return -2;
+        }
+        addEntClus(destFstClus, newClus);
+    }
+
+    unsigned char block[BLOCKSIZE];
+    Read_ramFDD_Block(ramFDD144, blockIdx, block);
+    time_t wrtTime = time(NULL);
+    Entry destEnt = getEnt(destEntname, entry->DIR_Attr, wrtTime, destFstClus, entry->DIR_FileSize);
+    parseEnt(&destEnt, block + entIdx * BYTSPERENT);
+    Write_ramFDD_Block(block, ramFDD144, blockIdx);
+
+    size_t bytsCnt = 0;
+    for (unsigned short clus = entry->DIR_FstClus, destClus = destFstClus;
+         clus != 0xfff;
+         clus = getNextClus(clus), destClus = getNextClus(destClus)) {
+        unsigned char block[BLOCKSIZE];
+        Read_ramFDD_Block(ramFDD144, 31 + clus, block);
+        unsigned char destBlock[BLOCKSIZE];
+        Read_ramFDD_Block(ramFDD144, 31 + destClus, destBlock);
+        for (size_t offset = 0; offset < BLOCKSIZE; offset++, bytsCnt++) {
+            if (bytsCnt == entry->DIR_FileSize) {
+                if (getNextClus(clus) != 0xfff) return -3;
+                break;
+            }
+            destBlock[offset] = block[offset];
+        }
+        Write_ramFDD_Block(destBlock, ramFDD144, 31 + destClus);
+    }
+    return 0;
+}
+
 int mkdirent(const char *entname, unsigned short dirClus,
              unsigned char *ramFDD144) {
     if (strstr(entname, ".")) return -1;

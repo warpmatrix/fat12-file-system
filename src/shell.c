@@ -89,3 +89,13 @@ void printPath(unsigned short clus, const unsigned char *ramFDD144) {
             printf("%s/", path[i]);
     }
 }
+
+char *getPathEntname(const char *path, char *entname) {
+    char delim[] = "/";
+    char *pathCopy = strdup(path), *cpyPtr = pathCopy;
+    const char *partPath = strsep(&pathCopy, delim);
+    while (pathCopy) partPath = strsep(&pathCopy, delim);
+    strcpy(entname, partPath);
+    free(cpyPtr);
+    return entname;
+}
