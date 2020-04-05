@@ -55,6 +55,12 @@ int main(int argc, char const *argv[]) {
                 else if (res == -5) printCmd(&cmd), printf(": Invalid argument\n");
                 else if (res == -6) printCmd(&cmd), printf(": Directory not empty\n");
                 else if (res == -7) printCmd(&cmd), printf(": Directory entry number error\n");;
+            } else if (!strcmp(cmd.argv[0], "rm")) {
+                int res = rmcmd(clus, cmd.argv[1], ramFDD144);
+                if (res == -1) printCmd(&cmd), printf(": Missing operand\n");
+                else if (res == -2) printCmd(&cmd), printf(": No such file\n");
+                else if (res == -3) printCmd(&cmd), printf(": Is a directory\n");
+                else if (res == -4) printCmd(&cmd), printf(": Operation not permitted\n");
             } else if (!strcmp(cmd.argv[0], "pwd")) {
                 pwdcmd(clus, ramFDD144);
             } else if (!strcmp(cmd.argv[0], "clear")) {

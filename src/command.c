@@ -67,6 +67,18 @@ int rmdircmd(unsigned short clus, const char *path, unsigned char *ramFDD144) {
     return 0;
 }
 
+int rmcmd(unsigned short clus, const char *path, unsigned char *ramFDD144) {
+    if (!path) return -1;
+    unsigned short dirClus = clus;
+    unsigned short entClus = parsePath(&dirClus, path, ramFDD144);
+    if (entClus == (unsigned short)-1) return -2;
+    Entry entry = getEntByClus(entClus, dirClus, ramFDD144);
+    if (entry.DIR_Attr == DIR_ATTR) return -3;
+    if (entry.DIR_Attr == PROT_ATTR) return -4;
+    int res = rment(entClus, dirClus, ramFDD144);
+    return 0;
+}
+
 void pwdcmd(unsigned short clus, const unsigned char *ramFDD144) {
     printPath(clus, ramFDD144), printf("\n");
 }

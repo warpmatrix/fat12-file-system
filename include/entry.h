@@ -11,7 +11,10 @@
 #include "io.h"
 #include "utils.h"
 
-static const size_t BYTSPERENT = 32;
+#define BYTSPERENT 32
+
+#define DIR_ATTR 0x10
+#define PROT_ATTR 0x27
 
 typedef struct Entry {
     char DIR_Name[11];
