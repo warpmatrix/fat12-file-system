@@ -2,6 +2,17 @@
 
 The project mainly using C to simulate FAT12 file system. And it also uses google test for testing.
 
+> The project is built in linux system, some api, like "strsep", doesn't support in windows.
+
+To run the project in linux, use commands:
+
+```shell
+make
+./bin/my-fat12-file-system
+```
+
+Or, use ```make run-test``` to run google test.
+
 ## To Do List
 
 - [ ] restruct: parsePath
