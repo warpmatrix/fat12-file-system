@@ -17,6 +17,42 @@ int dispFile(const Entry *fileEnt, const unsigned char *ramFDD144) {
     return 0;
 }
 
+int editFile(Entry *fileEnt, unsigned short dirClus, unsigned char *ramFDD144) {
+    dispFile(fileEnt, ramFDD144);
+    unsigned short clus = fileEnt->DIR_FstClus;
+    while (getNextClus(clus) != 0xfff) clus = getNextClus(clus);
+    unsigned char block[BLOCKSIZE];
+    Read_ramFDD_Block(ramFDD144, 31 + clus, block);
+    int offset = fileEnt->DIR_FileSize % BLOCKSIZE;
+
+    const size_t LINELEN = 16;
+    char line[LINELEN];
+    while (fgets(line, LINELEN, stdin) != NULL) {
+        size_t len = strlen(line);
+        for (size_t i = 0; i < len; i++) {
+            block[i + offset] = line[i];
+            if (i + offset == BLOCKSIZE - 1) {
+                Write_ramFDD_Block(block, ramFDD144, 31 + clus);
+                unsigned short newClus = getFreeClus();
+                addEntClus(fileEnt->DIR_FstClus, newClus);
+                clus = newClus;
+                Read_ramFDD_Block(ramFDD144, 31 + clus, block);
+                offset -= BLOCKSIZE;
+            }
+        }
+        fileEnt->DIR_FileSize += len;
+        offset = fileEnt->DIR_FileSize % BLOCKSIZE;
+    }
+    Write_ramFDD_Block(block, ramFDD144, 31 + clus);
+
+    size_t blockIdx, entIdx;
+    entIdx = getDirEnt(&blockIdx, fileEnt->DIR_FstClus, dirClus, ramFDD144);
+    Read_ramFDD_Block(ramFDD144, blockIdx, block);
+    parseTime(time(NULL), &fileEnt->DIR_WrtTime, &fileEnt->DIR_WrtDate);
+    parseEnt(fileEnt, block + entIdx * BYTSPERENT);
+    Write_ramFDD_Block(block, ramFDD144, blockIdx);
+}
+
 int mkent(const char *entname, unsigned short dirClus,
           unsigned char *ramFDD144) {
     size_t blockIdx, entIdx;
@@ -84,7 +120,8 @@ int cpent(const Entry *entry, const char *destEntname,
     unsigned char block[BLOCKSIZE];
     Read_ramFDD_Block(ramFDD144, blockIdx, block);
     time_t wrtTime = time(NULL);
-    Entry destEnt = getEnt(destEntname, entry->DIR_Attr, wrtTime, destFstClus, entry->DIR_FileSize);
+    Entry destEnt = getEnt(destEntname, entry->DIR_Attr, wrtTime, destFstClus,
+                           entry->DIR_FileSize);
     parseEnt(&destEnt, block + entIdx * BYTSPERENT);
     Write_ramFDD_Block(block, ramFDD144, blockIdx);
 
@@ -179,4 +216,3 @@ void listEnts(unsigned short fstClus, const unsigned char *ramFDD144) {
         }
     }
 }
-

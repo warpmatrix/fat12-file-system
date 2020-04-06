@@ -133,6 +133,17 @@ int catcmd(unsigned short clus, const char *path,
     return 0;
 }
 
+int editcmd(unsigned short clus, const char *path, unsigned char *ramFDD144) {
+    if (!path) return -1;  // missing operand
+    unsigned short dirClus = clus;
+    unsigned short entClus = parsePath(&dirClus, path, ramFDD144);
+    if (entClus == (unsigned short)-1) return -2;  // no such file
+    Entry entry = getEntByClus(entClus, dirClus, ramFDD144);
+    if (entry.DIR_Attr == DIR_ATTR) return -3;  // is a directory
+    int res = editFile(&entry, dirClus, ramFDD144);
+    return 0;
+}
+
 void pwdcmd(unsigned short clus, const unsigned char *ramFDD144) {
     printPath(clus, ramFDD144), printf("\n");
 }

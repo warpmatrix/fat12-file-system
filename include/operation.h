@@ -5,6 +5,7 @@
 #include "entry.h"
 
 int dispFile(const Entry *fileEnt, const unsigned char *ramFDD144);
+int editFile(Entry *fileEnt, unsigned short dirClus, unsigned char *ramFDD144);
 
 int mkent(const char *entname, unsigned short dirClus,
           unsigned char *ramFDD144);

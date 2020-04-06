@@ -74,14 +74,6 @@ int main(int argc, char const *argv[]) {
                     else if (res == -3) printCmd(&cmd), printf(": Is a directory\n");
                     else if (res == -4) printCmd(&cmd), printf(": Operation not permitted\n");
                 }
-            } else if (!strcmp(cmd.argv[0], "cat")) {
-                int res = catcmd(clus, cmd.argv[1], ramFDD144);
-                if (res != 0) {
-                    if (res == -1) printCmd(&cmd), printf(": Missing operand\n");
-                    else if (res == -2) printCmd(&cmd), printf(": No such file\n");
-                    else if (res == -3) printCmd(&cmd), printf(": Is a directory\n");
-                    else if (res == -4) printCmd(&cmd), printf(": File error\n");
-                }
             } else if (!strcmp(cmd.argv[0], "cp")) {
                 int res = cpcmd(clus, cmd.argv[1], cmd.argv[2], ramFDD144);
                 if (res != 0) {
@@ -94,6 +86,16 @@ int main(int argc, char const *argv[]) {
                     else if (res == -7) printCmd(&cmd), printf(": Root directory is full\n");
                     else if (res == -8) printCmd(&cmd), printf(": Disk is full\n");
                 }
+            } else if (!strcmp(cmd.argv[0], "cat")) {
+                int res = catcmd(clus, cmd.argv[1], ramFDD144);
+                if (res != 0) {
+                    if (res == -1) printCmd(&cmd), printf(": Missing operand\n");
+                    else if (res == -2) printCmd(&cmd), printf(": No such file\n");
+                    else if (res == -3) printCmd(&cmd), printf(": Is a directory\n");
+                    else if (res == -4) printCmd(&cmd), printf(": File error\n");
+                }
+            } else if (!strcmp(cmd.argv[0], "edit")) {
+                int res = editcmd(clus, cmd.argv[1], ramFDD144);
             } else if (!strcmp(cmd.argv[0], "pwd")) {
                 pwdcmd(clus, ramFDD144);
             } else if (!strcmp(cmd.argv[0], "clear")) {
