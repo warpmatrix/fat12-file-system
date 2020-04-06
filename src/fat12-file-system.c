@@ -96,6 +96,13 @@ int main(int argc, char const *argv[]) {
                 }
             } else if (!strcmp(cmd.argv[0], "edit")) {
                 int res = editcmd(clus, cmd.argv[1], ramFDD144);
+                if (res != 0) {
+                    if (res == -1) printCmd(&cmd), printf(": Missing operand\n");
+                    else if (res == -2) printCmd(&cmd), printf(": No such file\n");
+                    else if (res == -3) printCmd(&cmd), printf(": Is a directory\n");
+                    else if (res == -4) printCmd(&cmd), printf(": File error\n");
+                    else if (res == -5) printCmd(&cmd), printf(": Disk is full\n");
+                }
             } else if (!strcmp(cmd.argv[0], "pwd")) {
                 pwdcmd(clus, ramFDD144);
             } else if (!strcmp(cmd.argv[0], "clear")) {

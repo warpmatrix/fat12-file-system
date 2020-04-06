@@ -141,6 +141,8 @@ int editcmd(unsigned short clus, const char *path, unsigned char *ramFDD144) {
     Entry entry = getEntByClus(entClus, dirClus, ramFDD144);
     if (entry.DIR_Attr == DIR_ATTR) return -3;  // is a directory
     int res = editFile(&entry, dirClus, ramFDD144);
+    if (res == -1) return -4;  // file error
+    if (res == -2) return -5;  // disk is full
     return 0;
 }
 

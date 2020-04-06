@@ -18,7 +18,8 @@ int dispFile(const Entry *fileEnt, const unsigned char *ramFDD144) {
 }
 
 int editFile(Entry *fileEnt, unsigned short dirClus, unsigned char *ramFDD144) {
-    dispFile(fileEnt, ramFDD144);
+    int res = dispFile(fileEnt, ramFDD144);
+    if (res == -1) return -1;
     unsigned short clus = fileEnt->DIR_FstClus;
     while (getNextClus(clus) != 0xfff) clus = getNextClus(clus);
     unsigned char block[BLOCKSIZE];
@@ -34,6 +35,7 @@ int editFile(Entry *fileEnt, unsigned short dirClus, unsigned char *ramFDD144) {
             if (i + offset == BLOCKSIZE - 1) {
                 Write_ramFDD_Block(block, ramFDD144, 31 + clus);
                 unsigned short newClus = getFreeClus();
+                if (newClus == (unsigned short)-1) return -2;
                 addEntClus(fileEnt->DIR_FstClus, newClus);
                 clus = newClus;
                 Read_ramFDD_Block(ramFDD144, 31 + clus, block);
@@ -47,10 +49,12 @@ int editFile(Entry *fileEnt, unsigned short dirClus, unsigned char *ramFDD144) {
 
     size_t blockIdx, entIdx;
     entIdx = getDirEnt(&blockIdx, fileEnt->DIR_FstClus, dirClus, ramFDD144);
+    if (entIdx == (size_t)-1) return -1;
     Read_ramFDD_Block(ramFDD144, blockIdx, block);
     parseTime(time(NULL), &fileEnt->DIR_WrtTime, &fileEnt->DIR_WrtDate);
     parseEnt(fileEnt, block + entIdx * BYTSPERENT);
     Write_ramFDD_Block(block, ramFDD144, blockIdx);
+    return 0;
 }
 
 int mkent(const char *entname, unsigned short dirClus,
