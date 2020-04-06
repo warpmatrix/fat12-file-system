@@ -220,3 +220,47 @@ void listEnts(unsigned short fstClus, const unsigned char *ramFDD144) {
         }
     }
 }
+
+void printTree(unsigned short dirClus, Stack *lastEnt,
+               const unsigned char *ramFDD144) {
+    static bool falseVal = false, trueVal = true;
+    pushStack(&falseVal, lastEnt);
+    if (dirClus == 0x000) {
+        unsigned short baseSec = 19;
+        Entry entries[224];
+        size_t entCnt = 0;
+        for (unsigned short secOfst = 0; secOfst < 14; secOfst++) {
+            unsigned char block[BLOCKSIZE];
+            Read_ramFDD_Block(ramFDD144, baseSec + secOfst, block);
+            entCnt += parseEntBlock(block, entries + entCnt);
+        }
+        for (size_t i = 0; i < entCnt; i++) {
+            bool isLastEnt = i == entCnt - 1;
+            if (isLastEnt) setStackTopVal(lastEnt, &trueVal);
+            printTreeLine(lastEnt, &entries[i], isLastEnt);
+            if (entries[i].DIR_Attr == DIR_ATTR)
+                printTree(entries[i].DIR_FstClus, lastEnt, ramFDD144);
+            if (isLastEnt) popStack(lastEnt);
+        }
+    } else {
+        for (unsigned short clus = dirClus; clus != 0xfff;
+             clus = getNextClus(clus)) {
+            unsigned char block[BLOCKSIZE];
+            Read_ramFDD_Block(ramFDD144, 31 + clus, block);
+            Entry entries[16];
+            size_t entCnt = parseEntBlock(block, entries);
+            for (size_t i = 0; i < entCnt; i++) {
+                bool isLastEnt =
+                    (i == entCnt - 1) && getNextClus(clus) == 0xfff;
+                if (isLastEnt) setStackTopVal(lastEnt, &trueVal);
+                if (!(entnameEq(".", entries[i].DIR_Name) ||
+                      entnameEq("..", entries[i].DIR_Name))) {
+                    printTreeLine(lastEnt, &entries[i], isLastEnt);
+                    if (entries[i].DIR_Attr == DIR_ATTR)
+                        printTree(entries[i].DIR_FstClus, lastEnt, ramFDD144);
+                }
+                if (isLastEnt) popStack(lastEnt);
+            }
+        }
+    }
+}

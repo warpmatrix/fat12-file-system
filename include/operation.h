@@ -21,5 +21,7 @@ int rment(unsigned short entClus, unsigned short dirClus,
 
 void printEnts(const Entry *entries, int entCnt);
 void listEnts(unsigned short fstClus, const unsigned char *ramFDD144);
+void printTree(unsigned short dirClus, Stack *lastEnt,
+               const unsigned char *ramFDD144);
 
 #endif  // OPERATION_H

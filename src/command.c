@@ -98,7 +98,7 @@ int cpcmd(unsigned short clus, const char *path, const char *destPath,
     unsigned short entClus = parsePath(&dirClus, path, ramFDD144);
     if (entClus == (unsigned short)-1) return -3;  // no such file
     Entry entry = getEntByClus(entClus, dirClus, ramFDD144);
-    if (entry.DIR_Attr == DIR_ATTR) return -6; // is a directory
+    if (entry.DIR_Attr == DIR_ATTR) return -6;  // is a directory
     unsigned short destDirClus = clus;
     unsigned short destEntClus = parsePath(&destDirClus, destPath, ramFDD144);
     // no such destination directory
@@ -143,6 +143,23 @@ int editcmd(unsigned short clus, const char *path, unsigned char *ramFDD144) {
     int res = editFile(&entry, dirClus, ramFDD144);
     if (res == -1) return -4;  // file error
     if (res == -2) return -5;  // disk is full
+    return 0;
+}
+
+int treecmd(unsigned short clus, const char *path,
+            const unsigned char *ramFDD144) {
+    unsigned short entClus = clus, dirClus = clus;
+    if (path) entClus = parsePath(&dirClus, path, ramFDD144);
+    if (entClus == (unsigned short)-1) return -1;  // no such dir
+    if (entClus) {
+        Entry entry = getEntByClus(entClus, dirClus, ramFDD144);
+        if (entry.DIR_Attr != DIR_ATTR) return -1;
+    }
+    printPath(entClus, ramFDD144), printf("\n");
+    Stack lastEnt;
+    initStack(&lastEnt);
+    printTree(entClus, &lastEnt, ramFDD144);
+    freeStack(&lastEnt);
     return 0;
 }
 

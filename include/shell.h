@@ -22,10 +22,6 @@ void freeCmd(Command *cmd);
 // ret entClus and modify dirClus
 unsigned short parsePath(unsigned short *dirClus, const char *path,
                          const unsigned char *ramFDD144);
-size_t findPath(char (*path)[12], unsigned short entClus,
-                const unsigned char *ramFDD144);
-void printPath(unsigned short clus, const unsigned char *ramFDD144);
-
 char *getPathEntname(const char *path, char *entname);
 
 #endif

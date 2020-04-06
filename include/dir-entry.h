@@ -18,4 +18,9 @@ Entry getEntByName(const char *entname, unsigned short dirClus,
 Entry getEntByClus(unsigned short entClus, unsigned short dirClus,
                    const unsigned char *ramFDD144);
 
+size_t findPath(char (*path)[12], unsigned short entClus,
+                const unsigned char *ramFDD144);
+void printPath(unsigned short clus, const unsigned char *ramFDD144);
+void printTreeLine(const Stack *lastEnt, const Entry *entry, bool isLastEnt);
+
 #endif  // DIR_ENTRY_H

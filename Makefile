@@ -17,11 +17,11 @@ TEST_TARGET = $(TEST_BIN_DIR)/gtest
 TEST_SRC = $(wildcard $(TEST_SRC_DIR)/*.cpp)
 TEST_OBJ = $(TEST_SRC:$(TEST_SRC_DIR)/%.cpp=$(TEST_BUILD_DIR)/%.o)
 TEST_CC = g++
+TEST_FLAGS = -lgtest -lpthread
 
 TARGETS = $(TARGET) $(TEST_TARGET)
 
-TEST_FLAGS = -lgtest -lpthread
-
+proj: $(TARGET)
 all: $(TARGETS)
 
 $(TARGET): $(OBJ)
@@ -46,10 +46,6 @@ clean:
 	rm -rf $(TEST_BIN_DIR)
 	rm -rf $(TEST_BUILD_DIR)
 
-clean-obj:
-	rm -rf $(BUILD_DIR)
-	rm -rf $(TEST_BUILD_DIR)
-
 run-test:
-	$(MAKE)
+	$(MAKE) all
 	./test/bin/gtest

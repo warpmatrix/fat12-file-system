@@ -103,6 +103,11 @@ int main(int argc, char const *argv[]) {
                     else if (res == -4) printCmd(&cmd), printf(": File error\n");
                     else if (res == -5) printCmd(&cmd), printf(": Disk is full\n");
                 }
+            } else if (!strcmp(cmd.argv[0], "tree")) {
+                int res = treecmd(clus, cmd.argv[1], ramFDD144);
+                if (res != 0) {
+                    if (res == -1) printCmd(&cmd), printf(": No such directory\n");
+                }
             } else if (!strcmp(cmd.argv[0], "pwd")) {
                 pwdcmd(clus, ramFDD144);
             } else if (!strcmp(cmd.argv[0], "clear")) {

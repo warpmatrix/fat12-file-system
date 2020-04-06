@@ -58,38 +58,6 @@ unsigned short parsePath(unsigned short *dirClus, const char *path,
     return entry.DIR_FstClus;
 }
 
-size_t findPath(char (*path)[12], unsigned short entClus,
-                const unsigned char *ramFDD144) {
-    size_t cnt = 0;
-    while (entClus) {
-        Entry dirEnt = getEntByName("..", entClus, ramFDD144);
-        Entry entry = getEntByClus(entClus, dirEnt.DIR_FstClus, ramFDD144);
-        for (size_t i = 0; i < 11; i++) {
-            if (entry.DIR_Name[i] == ' ') {
-                path[cnt][i] = '\0';
-                break;
-            }
-            path[cnt][i] = entry.DIR_Name[i];
-            if (i == 10) path[cnt][11] = '\0';
-        }
-        cnt++;
-        entClus = dirEnt.DIR_FstClus;
-    }
-    return cnt;
-}
-
-void printPath(unsigned short clus, const unsigned char *ramFDD144) {
-    char path[BLOCKNUM - 33][12];
-    size_t cnt = findPath(path, clus, ramFDD144);
-    printf("/");
-    for (int i = cnt - 1; i >= 0; i--) {
-        if (i == 0)
-            printf("%s", path[i]);
-        else
-            printf("%s/", path[i]);
-    }
-}
-
 char *getPathEntname(const char *path, char *entname) {
     char delim[] = "/";
     char *pathCopy = strdup(path), *cpyPtr = pathCopy;

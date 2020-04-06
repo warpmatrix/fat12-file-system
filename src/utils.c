@@ -1,5 +1,26 @@
 #include "utils.h"
 
+void initStack(Stack *stack) { stack->size = 0; }
+
+void pushStack(const void *val, Stack *stack) {
+    stack->arr[stack->size] = malloc(sizeof(*val));
+    strcpy(stack->arr[stack->size], val);
+    stack->size++;
+}
+
+void setStackTopVal(Stack *stack, const void *val) {
+    if (stack->size > 0) strcpy(stack->arr[stack->size - 1], val);
+}
+
+void *getStackVal(const Stack *stack, size_t idx) { return stack->arr[idx]; }
+
+void popStack(Stack *stack) { free(stack->arr[--stack->size]); }
+
+void freeStack(Stack *stack) {
+    for (size_t i = 0; i < stack->size; i++) free(stack->arr[i]);
+    stack->size = 0;
+}
+
 bool diskStrEq(const char *str, const char *diskStr, int size) {
     for (size_t offset = 0; offset < size; offset++) {
         if (offset < strlen(str) && diskStr[offset] != str[offset])

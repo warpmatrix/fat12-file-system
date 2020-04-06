@@ -20,6 +20,7 @@ int cpcmd(unsigned short clus, const char *path, const char *destPath,
 int catcmd(unsigned short clus, const char *path,
            const unsigned char *ramFDD144);
 int editcmd(unsigned short clus, const char *path, unsigned char *ramFDD144);
+int treecmd(unsigned short clus, const char *path, const unsigned char *ramFDD144);
 void pwdcmd(unsigned short clus, const unsigned char *ramFDD144);
 void clearcmd(void);
 
