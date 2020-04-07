@@ -2,9 +2,9 @@
 
 The project mainly using C to simulate FAT12 file system. And it also uses google test for testing.
 
-> The project is built in linux system, some api, like "strsep", doesn't support in windows.
+> The project is built in linux system, some api may not support in windows.
 
-To run the project in linux, use commands:
+To run the project, use commands:
 
 ```shell
 make

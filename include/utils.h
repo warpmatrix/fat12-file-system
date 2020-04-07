@@ -28,6 +28,7 @@ unsigned int parseNum(const unsigned char *str, size_t base, size_t len);
 void parseEntNum(unsigned int entNum, unsigned char *entStr, size_t base,
                  size_t len);
 
+char *strsep(char **stringp, const char *delim);
 void parseStr(const unsigned char *block, size_t base, size_t len, char *str);
 void parseEntCharStr(const char *entCharStr, unsigned char *entStr, size_t base,
                      size_t len);
