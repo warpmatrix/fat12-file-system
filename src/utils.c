@@ -58,6 +58,11 @@ char *strsep(char **stringp, const char *delim) {
     /* NOTREACHED */
 }
 
+char *strdup(const char *s) {
+    char *newStr = (char *)malloc((strlen(s) + 1) * sizeof(char));
+    return strcpy(newStr, s);
+}
+
 void parseStr(const unsigned char *block, size_t base, size_t len, char *str) {
     for (size_t offset = 0; offset < len; offset++)
         str[offset] = block[base + offset];

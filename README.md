@@ -4,7 +4,7 @@ The project mainly using C to simulate FAT12 file system. And it also uses googl
 
 > The project is built in linux system, some api may not support in windows.
 
-To run the project, use commands:
+To run the project in linux, use commands:
 
 ```shell
 make

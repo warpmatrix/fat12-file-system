@@ -4,10 +4,10 @@ int lscmd(unsigned short clus, const char *path,
           const unsigned char *ramFDD144) {
     unsigned short entClus = clus, dirClus = clus;
     if (path) entClus = parsePath(&dirClus, path, ramFDD144);
-    if (entClus == (unsigned short)-1) return -1;
+    if (entClus == (unsigned short)-1) return NO_FILE_DIR;
     if (entClus) {
         Entry entry = getEntByClus(entClus, dirClus, ramFDD144);
-        if (entry.DIR_Attr != DIR_ATTR) return -1;
+        if (entry.DIR_Attr != DIR_ATTR) return NO_FILE_DIR;
     }
     listEnts(entClus, ramFDD144);
     return 0;
@@ -17,39 +17,39 @@ int cdcmd(unsigned short *clus, const char *path,
           const unsigned char *ramFDD144) {
     unsigned short entClus = 0, dirClus = *clus;
     if (path) entClus = parsePath(&dirClus, path, ramFDD144);
-    if (entClus == (unsigned short)-1) return -1;
+    if (entClus == (unsigned short)-1) return NO_FILE_DIR;
     if (entClus) {
         Entry entry = getEntByClus(entClus, dirClus, ramFDD144);
-        if (entry.DIR_Attr != DIR_ATTR) return -1;
+        if (entry.DIR_Attr != DIR_ATTR) return NO_FILE_DIR;
     }
     *clus = entClus;
     return 0;
 }
 
 int mkdircmd(unsigned short clus, const char *path, unsigned char *ramFDD144) {
-    if (!path) return -1;  // missing operand
+    if (!path) return MISS_OPERAND;
     unsigned short dirClus = clus;
     unsigned short entClus = parsePath(&dirClus, path, ramFDD144);
-    if (dirClus == (unsigned short)-1) return -2;  // dir doesn't exist
-    if (entClus != (unsigned short)-1) return -3;  // target exist
+    if (dirClus == (unsigned short)-1) return NO_FILE_DIR;
+    if (entClus != (unsigned short)-1) return FILE_DIR_XST;
     char entname[12];
     getPathEntname(path, entname);
     int res = mkdirent(entname, dirClus, ramFDD144);
-    if (res == -1) return -4;  // directory name contains '.'
-    if (res == -2) return -5;  // root blocks are full
-    if (res == -3) return -6;  // disk data block are full
+    if (res == -1) return DIR_HAS_DOT;
+    if (res == -2) return ROOT_IS_FULL;
+    if (res == -3) return DISK_IS_FULL;
     return 0;
 }
 
 int rmdircmd(unsigned short clus, const char *path, unsigned char *ramFDD144) {
-    if (!path) return -1;  // missing operand
+    if (!path) return MISS_OPERAND;
     unsigned short dirClus = clus;
     unsigned short entClus = parsePath(&dirClus, path, ramFDD144);
-    if (entClus == (unsigned short)-1) return -2;  // entry doesn't exist
-    if (entClus == clus) return -3;  // can't remove present directory
+    if (entClus == (unsigned short)-1) return NO_FILE_DIR;
+    if (entClus == clus) return NOT_RM_PRES_DIR;
     Entry entry = getEntByClus(entClus, dirClus, ramFDD144);
-    if (entry.DIR_Attr != DIR_ATTR) return -4;
-    if (entnameEq(".", entry.DIR_Name)) return -5;
+    if (entry.DIR_Attr != DIR_ATTR) return NO_FILE_DIR;
+    if (entnameEq(".", entry.DIR_Name)) return INVALID_ARGUMET;
     size_t entCnt = 0;
     for (unsigned short clus = entClus; clus != 0xfff;
          clus = getNextClus(clus)) {
@@ -58,51 +58,50 @@ int rmdircmd(unsigned short clus, const char *path, unsigned char *ramFDD144) {
         Entry entries[16];
         entCnt += parseEntBlock(block, entries);
     }
-    if (entCnt > 2) return -6;
-    if (entCnt < 2) return -7;
+    if (entCnt > 2) return DIR_NOT_EMPTY;
+    if (entCnt < 2) return FILE_ERROR;
     int res = rment(entClus, dirClus, ramFDD144);
     return 0;
 }
 
 int touchcmd(unsigned short clus, const char *path, unsigned char *ramFDD144) {
-    if (!path) return -1;  // missing operand
+    if (!path) return MISS_OPERAND;
     unsigned short dirClus = clus;
     unsigned short entClus = parsePath(&dirClus, path, ramFDD144);
-    if (dirClus == (unsigned short)-1) return -2;  // dir doesn't exist
-    if (entClus != (unsigned short)-1) return -3;  // file or directory exist
+    if (dirClus == (unsigned short)-1) return NO_FILE_DIR;
+    if (entClus != (unsigned short)-1) return FILE_DIR_XST;
     char entname[12];
     getPathEntname(path, entname);
     int res = mkent(entname, dirClus, ramFDD144);
-    if (res == -1) return -4;  // root blocks are full
-    if (res == -2) return -5;  // disk data block are full
+    if (res == -1) return ROOT_IS_FULL;
+    if (res == -2) return DISK_IS_FULL;
     return 0;
 }
 
 int rmcmd(unsigned short clus, const char *path, unsigned char *ramFDD144) {
-    if (!path) return -1;  // missing operand
+    if (!path) return MISS_OPERAND;
     unsigned short dirClus = clus;
     unsigned short entClus = parsePath(&dirClus, path, ramFDD144);
-    if (entClus == (unsigned short)-1) return -2;  // no such file
+    if (entClus == (unsigned short)-1) return NO_FILE_DIR;
     Entry entry = getEntByClus(entClus, dirClus, ramFDD144);
-    if (entry.DIR_Attr == DIR_ATTR) return -3;   // is a directory
-    if (entry.DIR_Attr == PROT_ATTR) return -4;  // operation not permitted
+    if (entry.DIR_Attr == DIR_ATTR) return IS_DIRECTORY;
+    if (entry.DIR_Attr == PROT_ATTR) return OPER_NOT_PERM;
     int res = rment(entClus, dirClus, ramFDD144);
     return 0;
 }
 
 int cpcmd(unsigned short clus, const char *path, const char *destPath,
           unsigned char *ramFDD144) {
-    if (!path) return -1;      // missing file operand
-    if (!destPath) return -2;  // missing destination file
+    if (!path) return MISS_OPERAND;
+    if (!destPath) return MISS_DEST_FILE;
     unsigned short dirClus = clus;
     unsigned short entClus = parsePath(&dirClus, path, ramFDD144);
-    if (entClus == (unsigned short)-1) return -3;  // no such file
+    if (entClus == (unsigned short)-1) return NO_FILE_DIR;
     Entry entry = getEntByClus(entClus, dirClus, ramFDD144);
-    if (entry.DIR_Attr == DIR_ATTR) return -6;  // is a directory
+    if (entry.DIR_Attr == DIR_ATTR) return IS_DIRECTORY;
     unsigned short destDirClus = clus;
     unsigned short destEntClus = parsePath(&destDirClus, destPath, ramFDD144);
-    // no such destination directory
-    if (destDirClus == (unsigned short)-1) return -4;
+    if (destDirClus == (unsigned short)-1) return NO_FILE_DIR;
     char entname[12];
     if (destEntClus != (unsigned short)-1) {
         Entry destEnt = getEntByClus(destEntClus, destDirClus, ramFDD144);
@@ -111,38 +110,39 @@ int cpcmd(unsigned short clus, const char *path, const char *destPath,
             destEntClus = -1;
             getPathEntname(path, entname);
         } else
-            return -5;  // file or directory exist
+            return FILE_DIR_XST;
     } else
         getPathEntname(destPath, entname);
     int res = cpent(&entry, entname, destDirClus, ramFDD144);
-    if (res == -1) return -7;
-    if (res == -2) return -8;
+    if (res == -1) return ROOT_IS_FULL;
+    if (res == -2) return DISK_IS_FULL;
+    if (res == -3) return FILE_ERROR;
     return 0;
 }
 
 int catcmd(unsigned short clus, const char *path,
            const unsigned char *ramFDD144) {
-    if (!path) return -1;  // missing operand
+    if (!path) return MISS_OPERAND;
     unsigned short dirClus = clus;
     unsigned short entClus = parsePath(&dirClus, path, ramFDD144);
-    if (entClus == (unsigned short)-1) return -2;  // no such file
+    if (entClus == (unsigned short)-1) return NO_FILE_DIR;
     Entry entry = getEntByClus(entClus, dirClus, ramFDD144);
-    if (entry.DIR_Attr == DIR_ATTR) return -3;  // is a directory
+    if (entry.DIR_Attr == DIR_ATTR) return IS_DIRECTORY;
     int res = dispFile(&entry, ramFDD144);
-    if (res == -1) return -4;  // file error
+    if (res == -1) return FILE_ERROR;
     return 0;
 }
 
 int editcmd(unsigned short clus, const char *path, unsigned char *ramFDD144) {
-    if (!path) return -1;  // missing operand
+    if (!path) return MISS_OPERAND;
     unsigned short dirClus = clus;
     unsigned short entClus = parsePath(&dirClus, path, ramFDD144);
-    if (entClus == (unsigned short)-1) return -2;  // no such file
+    if (entClus == (unsigned short)-1) return NO_FILE_DIR;
     Entry entry = getEntByClus(entClus, dirClus, ramFDD144);
-    if (entry.DIR_Attr == DIR_ATTR) return -3;  // is a directory
+    if (entry.DIR_Attr == DIR_ATTR) return IS_DIRECTORY;
     int res = editFile(&entry, dirClus, ramFDD144);
-    if (res == -1) return -4;  // file error
-    if (res == -2) return -5;  // disk is full
+    if (res == -1) return FILE_ERROR;
+    if (res == -2) return DISK_IS_FULL;
     return 0;
 }
 
@@ -150,10 +150,10 @@ int treecmd(unsigned short clus, const char *path,
             const unsigned char *ramFDD144) {
     unsigned short entClus = clus, dirClus = clus;
     if (path) entClus = parsePath(&dirClus, path, ramFDD144);
-    if (entClus == (unsigned short)-1) return -1;  // no such dir
+    if (entClus == (unsigned short)-1) return NO_FILE_DIR;
     if (entClus) {
         Entry entry = getEntByClus(entClus, dirClus, ramFDD144);
-        if (entry.DIR_Attr != DIR_ATTR) return -1;
+        if (entry.DIR_Attr != DIR_ATTR) return NO_FILE_DIR;
     }
     printPath(entClus, ramFDD144), printf("\n");
     Stack lastEnt;
@@ -163,8 +163,12 @@ int treecmd(unsigned short clus, const char *path,
     return 0;
 }
 
-void pwdcmd(unsigned short clus, const unsigned char *ramFDD144) {
+int pwdcmd(unsigned short clus, const unsigned char *ramFDD144) {
     printPath(clus, ramFDD144), printf("\n");
+    return 0;
 }
 
-void clearcmd() { fputs("\x1b[2J\x1b[H", stdout); }
+int clearcmd(void) {
+    fputs("\x1b[2J\x1b[H", stdout);
+    return 0;
+}

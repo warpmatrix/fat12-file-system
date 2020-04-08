@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "command.h"
 #include "io.h"
 #include "shell.h"
 
@@ -28,8 +27,8 @@ int main(int argc, char const *argv[]) {
     Command cmd = inputCmd();
     while (cmd.argc == 0 || cmd.argc > 0 && strcmp(cmd.argv[0], "quit")) {
         if (cmd.argc > 0) {
-            int res = excuteCmd(&cmd, clus, ramFDD144);
-            if (res != 0) printErrInfo(res);
+            int res = excuteCmd(&cmd, &clus, ramFDD144);
+            if (res != 0) printErrInfo(&cmd, res);
         }
         freeCmd(&cmd);
         printPath(clus, ramFDD144), printf("$ ");
