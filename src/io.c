@@ -1,12 +1,21 @@
 #include "io.h"
 
-int Read_ramFDD(unsigned char *ramFDD144, const char *filename) {
-    FILE *fp = fopen(filename, "rb");
+int Read_ramFDD(unsigned char *ramFDD144) {
+    FILE *fp = fopen(FILENAME, "rb");
     if (fp == NULL) return -1;
     size_t cnt = 0;
     while (fscanf(fp, "%c", &ramFDD144[cnt]) != EOF) cnt++;
     fclose(fp);
     return cnt;
+}
+
+int Write_ramFDD(const unsigned char *ramFDD144) {
+    FILE *fp = fopen(FILENAME, "wb");
+    if (fp == NULL) return -1;
+    for (size_t i = 0; i < SIZE; i++)
+        fprintf(fp, "%c", ramFDD144[i]);
+    fclose(fp);
+    return 0;
 }
 
 void Read_ramFDD_Block(const unsigned char *ramFDD144, int blockIdx,

@@ -36,11 +36,13 @@ int main(int argc, char const *argv[]) {
     }
     freeCmd(&cmd);
 
+    writeFats(ramFDD144);
+    Write_ramFDD(ramFDD144);
     return 0;
 }
 
 int init(unsigned char *ramFDD144) {
-    int cnt = Read_ramFDD(ramFDD144, FILENAME);
+    int cnt = Read_ramFDD(ramFDD144);
     if (cnt != SIZE) return cnt;
 
     printf("MBR info:\n");
