@@ -15,9 +15,9 @@ Or, use ```make run-test``` to run google test.
 
 ## To Do List
 
-- [ ] restruct: parsePath
 - [ ] modify: cmd pwd
 - [ ] add editor
+- [x] modify: parsePath
 - [x] add cmd: rmdir, rm, touch, cat, cp, edit, tree
 - [x] restruct: entry
 - [x] add fat test

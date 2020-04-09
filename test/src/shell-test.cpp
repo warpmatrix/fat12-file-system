@@ -58,7 +58,7 @@ TEST(ParsePathTest, HandlesSubDirEntry) {
     EXPECT_EQ(dirClus, 0x000);
 
     dirClus = entClus;
-    entClus = parsePath(&dirClus, "MATRIX/MUSIC", ramFDD144);
+    entClus = parsePath(&dirClus, "MATRIX/MUSIC/", ramFDD144);
     EXPECT_EQ(entClus, 0x822);
     EXPECT_EQ(dirClus, 0x821);
 
@@ -66,6 +66,16 @@ TEST(ParsePathTest, HandlesSubDirEntry) {
     entClus = parsePath(&dirClus, "../../../COMMAND.COM", ramFDD144);
     EXPECT_EQ(entClus, 0x09d);
     EXPECT_EQ(dirClus, 0x0);
+
+    dirClus = entClus;
+    entClus = parsePath(&dirClus, "/", ramFDD144);
+    EXPECT_EQ(entClus, 0);
+    EXPECT_EQ(dirClus, 0);
+
+    dirClus = 0;
+    entClus = parsePath(&dirClus, "USER/", ramFDD144);
+    EXPECT_EQ(entClus, 0x81f);
+    EXPECT_EQ(dirClus, 0x000);
 }
 
 TEST(ParsePathTest, HandlesNullEntry) {
@@ -82,6 +92,11 @@ TEST(ParsePathTest, HandlesNullEntry) {
 
     dirClus = 0;
     entClus = parsePath(&dirClus, "USER/null.ent", ramFDD144);
+    EXPECT_EQ(entClus, (unsigned short)-1);
+    EXPECT_EQ(dirClus, 0x81f);
+
+    dirClus = 0;
+    entClus = parsePath(&dirClus, "USER//", ramFDD144);
     EXPECT_EQ(entClus, (unsigned short)-1);
     EXPECT_EQ(dirClus, 0x81f);
 

@@ -125,15 +125,16 @@ unsigned short parsePath(unsigned short *dirClus, const char *path,
                          const unsigned char *ramFDD144) {
     const char delim[] = "/";
     char *pathCopy = strdup(path), *cpyPtr = pathCopy;
+    Entry entry;
     if (path[0] == '/') {
-        *dirClus = 0;
+        entry.DIR_FstClus = *dirClus = 0;
         strsep(&pathCopy, delim);
     }
-    Entry entry;
     for (const char *entname = strsep(&pathCopy, delim); entname != NULL;
          entname = strsep(&pathCopy, delim)) {
+        if (!pathCopy && strlen(entname) == 0) break;
         entry = getEntByName(entname, *dirClus, ramFDD144);
-        if (pathCopy) *dirClus = entry.DIR_FstClus;
+        if (pathCopy && strlen(pathCopy)) *dirClus = entry.DIR_FstClus;
         if (entry.DIR_FstClus == (unsigned short)-1) break;
     }
     free(cpyPtr);

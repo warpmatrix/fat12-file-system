@@ -38,24 +38,18 @@ unsigned int parseNum(const unsigned char *str, size_t base, size_t len) {
 }
 
 char *strsep(char **stringp, const char *delim) {
-    char *s = *stringp;
-    if (s == NULL) return NULL;
-    for (char *tok = s;;) {
-        int c = *s++;
-        const char *spanp = delim;
-        int sc;
-        do {
-            if ((sc = *spanp++) == c) {
-                if (c == 0)
-                    s = NULL;
-                else
-                    s[-1] = 0;
-                *stringp = s;
-                return (tok);
+    char *tok = *stringp;
+    if (tok == NULL) return NULL;
+    for (char *s = tok; *s != '\0'; s++) {
+        for (const char *spanp = delim; *spanp != '\0'; spanp++)
+            if (*spanp == *s) {
+                *s = '\0';
+                *stringp = s + 1;
+                return tok;
             }
-        } while (sc != 0);
     }
-    /* NOTREACHED */
+    *stringp = NULL;
+    return tok;
 }
 
 char *strdup(const char *s) {
