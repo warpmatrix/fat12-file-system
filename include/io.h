@@ -4,7 +4,6 @@
 #include <stddef.h>
 #include <stdio.h>
 
-#include "fat.h"
 #include "utils.h"
 
 // fail to find the file , return -1;

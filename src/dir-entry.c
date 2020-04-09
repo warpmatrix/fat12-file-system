@@ -167,19 +167,21 @@ size_t findPath(char (*path)[12], unsigned short entClus,
         cnt++;
         entClus = dirEnt.DIR_FstClus;
     }
+    strcpy(path[cnt++], "/");
     return cnt;
 }
 
 void printPath(unsigned short clus, const unsigned char *ramFDD144) {
     char path[BLOCKNUM - 33][12];
     size_t cnt = findPath(path, clus, ramFDD144);
-    printf("/");
+    printf("\x1b[34;1m");
     for (int i = cnt - 1; i >= 0; i--) {
-        if (i == 0)
+        if (i == 0 || i == cnt - 1)
             printf("%s", path[i]);
         else
             printf("%s/", path[i]);
     }
+    printf("\x1b[0m");
 }
 
 void printTreeLine(const Stack *lastEnt, const Entry *entry, bool isLastEnt) {
