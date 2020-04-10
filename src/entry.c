@@ -26,9 +26,9 @@ Entry getEnt(const char *entname, unsigned char attr, time_t wrtTime,
              unsigned short fstClus, unsigned int fileSize) {
     Entry entry;
     if (!strcmp(entname, "."))
-        strcpy(entry.DIR_Name, ".         "), entry.DIR_Name[10] = ' ';
+        strcpy(entry.DIR_Name, ".          ");
     else if (!strcmp(entname, ".."))
-        strcpy(entry.DIR_Name, "..        "), entry.DIR_Name[10] = ' ';
+        strcpy(entry.DIR_Name, "..         ");
     else {
         char *strCopy = strdup(entname), *cpyPtr = strCopy;
         const char delim[] = ".";
@@ -44,6 +44,7 @@ Entry getEnt(const char *entname, unsigned char attr, time_t wrtTime,
                 entry.DIR_Name[8 + i] = extFilename[i];
             else
                 entry.DIR_Name[8 + i] = ' ';
+        entry.DIR_Name[11] = '\0';
         free(cpyPtr);
     }
     entry.DIR_Attr = attr;
@@ -52,6 +53,45 @@ Entry getEnt(const char *entname, unsigned char attr, time_t wrtTime,
     entry.DIR_FstClus = fstClus;
     entry.DIR_FileSize = fileSize;
     return entry;
+}
+
+void printEntInfo(const Entry *entry) {
+    if (entry->DIR_Attr == DIR_ATTR) printf("\x1b[34;1m");
+    char filename[12];
+    parseEntName(entry, filename);
+    printf("%-12s", filename);
+    printf("\x1b[0m");
+    printf("  0x%02X", entry->DIR_Attr);
+    char time[20];
+    parseWriTime(entry->DIR_WrtTime, entry->DIR_WrtDate, time);
+    printf("  %s", time);
+    if (entry->DIR_Attr != DIR_ATTR) printf("  %-7d Bytes", entry->DIR_FileSize);
+    printf("\n");
+}
+
+void parseEntName(const Entry *entry, char *filename) {
+    if (!strcmp(".          ", entry->DIR_Name)) {
+        strcpy(filename, ".");
+        return;
+    }
+    if (!strcmp("..         ", entry->DIR_Name)) {
+        strcpy(filename, "..");
+        return;
+    }
+    size_t len = 0;
+    for (size_t i = 0; i < 8; i++) {
+        if (entry->DIR_Name[i] == ' ') break;
+        filename[i] = entry->DIR_Name[len++];
+    }
+    if (entry->DIR_Name[8] == ' ') {
+        filename[len] = '\0';
+    } else
+        filename[len++] = '.';
+    for (size_t i = 8; i < 11; i++) {
+        if (entry->DIR_Name[i] == ' ') break;
+        filename[len++] = entry->DIR_Name[i];
+    }
+    filename[len] = '\0';
 }
 
 void parseTime(time_t timer, unsigned short *wrtTime, unsigned short *wrtDate) {

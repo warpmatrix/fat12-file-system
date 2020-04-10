@@ -36,7 +36,7 @@ TEST(ParseWriTimeTest, HandlesExampleTime) {
 
 TEST(ParseEntTest, HandlesDotDirEnt) {
     Entry entry;
-    strcpy(entry.DIR_Name, ".         "), entry.DIR_Name[10] = ' ';
+    strcpy(entry.DIR_Name, ".          ");
     entry.DIR_Attr = DIR_ATTR;
     memset(entry.Reserve, 0, 10);
     entry.DIR_WrtTime = 0x4AAE;

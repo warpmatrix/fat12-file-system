@@ -187,15 +187,7 @@ int rment(unsigned short entClus, unsigned short dirClus,
 void printEnts(const Entry *entries, int entCnt) {
     for (size_t i = 0; i < entCnt; i++) {
         if (entries[i].DIR_Attr == HIDN_ATTR) continue;
-        printf("DIR_Name: "), printStr(entries[i].DIR_Name, 11);
-        printf(",    DIR_Attr: 0x%02X", entries[i].DIR_Attr);
-        char time[20];
-        parseWriTime(entries[i].DIR_WrtTime, entries[i].DIR_WrtDate, time);
-        printf(",    WrtTime: %s", time);
-        if (entries[i].DIR_Attr != DIR_ATTR)
-            printf(",    FileSize: %d Bytes\n", entries[i].DIR_FileSize);
-        else
-            printf("\n");
+        printEntInfo(&entries[i]);
     }
 }
 
