@@ -1,10 +1,9 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "fat12-header.h"
 #include "io.h"
 #include "shell.h"
-
-#include "fat12-header.h"
 
 const char FILENAME[] = "disk/disk.flp";
 
@@ -16,7 +15,8 @@ int main(int argc, char const *argv[]) {
     if (res != SIZE) {
         if (res == -1) printf("Cannot find the disk\n");
         if (res == -2) printf("File allocation table error\n");
-        if (res >=0 && res < SIZE) printf("File size(%d) doesn't match\n", res);
+        if (res >= 0 && res < SIZE)
+            printf("File size(%d) doesn't match\n", res);
         return res;
     }
     printf("Successfully Loaded!\n");
@@ -37,12 +37,12 @@ int main(int argc, char const *argv[]) {
     freeCmd(&cmd);
 
     writeFats(ramFDD144);
-    Write_ramFDD(ramFDD144);
+    Write_ramFDD(ramFDD144, FILENAME);
     return 0;
 }
 
 int init(unsigned char *ramFDD144) {
-    int cnt = Read_ramFDD(ramFDD144);
+    int cnt = Read_ramFDD(ramFDD144, FILENAME);
     if (cnt != SIZE) return cnt;
 
     printf("MBR info:\n");

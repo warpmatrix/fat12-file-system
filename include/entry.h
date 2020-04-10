@@ -35,7 +35,8 @@ Entry getEnt(const char *entname, unsigned char attr, time_t secs,
 
 void printEntInfo(const Entry *entry);
 
-void parseEntName(const Entry *entry, char *filename);
+void parseEntname(const char *entname, char *entnameStr);
+void parseEntNameStr(const char *entnameStr, char *entname);
 void parseTime(time_t time, unsigned short *wrtTime, unsigned short *wrtDate);
 void parseWriTime(unsigned short DIR_WrtTime, unsigned short DIR_WrtDate,
                   char *time);

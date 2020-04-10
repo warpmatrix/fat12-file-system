@@ -1,7 +1,7 @@
 #include "io.h"
 
-int Read_ramFDD(unsigned char *ramFDD144) {
-    FILE *fp = fopen(FILENAME, "rb");
+int Read_ramFDD(unsigned char *ramFDD144, const char *diskname) {
+    FILE *fp = fopen(diskname, "rb");
     if (fp == NULL) return -1;
     size_t cnt = 0;
     while (fscanf(fp, "%c", &ramFDD144[cnt]) != EOF) cnt++;
@@ -9,8 +9,8 @@ int Read_ramFDD(unsigned char *ramFDD144) {
     return cnt;
 }
 
-int Write_ramFDD(const unsigned char *ramFDD144) {
-    FILE *fp = fopen(FILENAME, "wb");
+int Write_ramFDD(const unsigned char *ramFDD144, const char *diskname) {
+    FILE *fp = fopen(diskname, "wb");
     if (fp == NULL) return -1;
     for (size_t i = 0; i < SIZE; i++)
         fprintf(fp, "%c", ramFDD144[i]);

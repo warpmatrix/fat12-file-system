@@ -61,10 +61,10 @@ int mkent(const char *entname, unsigned short dirClus,
           unsigned char *ramFDD144) {
     size_t blockIdx, entIdx;
     entIdx = getDirFreeEnt(&blockIdx, dirClus, ramFDD144);
-    if (entIdx == (size_t)-1) return -1;
-    if (entIdx == (size_t)-2) return -2;
+    if (entIdx == (size_t)-1) return ROOT_IS_FULL;
+    if (entIdx == (size_t)-2) return DISK_IS_FULL;
     unsigned short newEntClus = getFreeClus();
-    if (newEntClus == (unsigned short)-1) return -3;
+    if (newEntClus == (unsigned short)-1) return DISK_IS_FULL;
 
     unsigned char block[BLOCKSIZE];
     Read_ramFDD_Block(ramFDD144, blockIdx, block);
@@ -78,13 +78,12 @@ int mkent(const char *entname, unsigned short dirClus,
 
 int mkdirent(const char *entname, unsigned short dirClus,
              unsigned char *ramFDD144) {
-    if (strstr(entname, ".")) return -1;
     size_t blockIdx, entIdx;
     entIdx = getDirFreeEnt(&blockIdx, dirClus, ramFDD144);
-    if (entIdx == (size_t)-1) return -2;
-    if (entIdx == (size_t)-2) return -3;
+    if (entIdx == (size_t)-1) return ROOT_IS_FULL;
+    if (entIdx == (size_t)-2) return DISK_IS_FULL;
     unsigned short newEntClus = getFreeClus();
-    if (newEntClus == (unsigned short)-1) return -3;
+    if (newEntClus == (unsigned short)-1) return DISK_IS_FULL;
 
     unsigned char block[BLOCKSIZE];
     Read_ramFDD_Block(ramFDD144, blockIdx, block);

@@ -35,9 +35,8 @@ int mkdircmd(unsigned short clus, const char *path, unsigned char *ramFDD144) {
     char entname[12];
     getPathEntname(path, entname);
     int res = mkdirent(entname, dirClus, ramFDD144);
-    if (res == -1) return DIR_HAS_DOT;
-    if (res == -2) return ROOT_IS_FULL;
-    if (res == -3) return DISK_IS_FULL;
+    if (res == ROOT_IS_FULL) return ROOT_IS_FULL;
+    if (res == DISK_IS_FULL) return DISK_IS_FULL;
     return 0;
 }
 
@@ -75,7 +74,7 @@ int touchcmd(unsigned short clus, const char *path, unsigned char *ramFDD144) {
     int res = mkent(entname, dirClus, ramFDD144);
     if (res == -1) return ROOT_IS_FULL;
     if (res == -2) return DISK_IS_FULL;
-    return 0;
+    return res;
 }
 
 int rmcmd(unsigned short clus, const char *path, unsigned char *ramFDD144) {

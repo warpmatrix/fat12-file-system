@@ -112,10 +112,12 @@ TEST(FindPathTest, HandlesUserMatrixMusic) {
     ASSERT_EQ(res, SIZE);
     char path[BLOCKNUM - 33][12];
     size_t cnt = findPath(path, 0x81f, ramFDD144);
-    EXPECT_EQ(cnt, 1);
+    EXPECT_EQ(cnt, 2);
+    EXPECT_STREQ(path[1], "/");
     EXPECT_STREQ(path[0], "USER");
     cnt = findPath(path, 0x822, ramFDD144);
-    EXPECT_EQ(cnt, 3);
+    EXPECT_EQ(cnt, 4);
+    EXPECT_STREQ(path[3], "/");
     EXPECT_STREQ(path[2], "USER");
     EXPECT_STREQ(path[1], "MATRIX");
     EXPECT_STREQ(path[0], "MUSIC");

@@ -96,8 +96,7 @@ TEST(EntnameEqTest, HandlesStrUsers) {
     EXPECT_TRUE(entnameEq("USERS", entname));
     EXPECT_FALSE(entnameEq("users", entname));
     EXPECT_FALSE(entnameEq(".USERS", entname));
-    EXPECT_TRUE(entnameEq("USERS.", entname));
-    // EXPECT_FALSE(entnameEq("users.", entname));
+    EXPECT_FALSE(entnameEq("USERS.", entname));
 }
 
 TEST(EntnameEqTest, HandlesStrDot) {

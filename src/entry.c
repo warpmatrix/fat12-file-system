@@ -25,28 +25,7 @@ void parseEnt(const Entry *entry, unsigned char *entStr) {
 Entry getEnt(const char *entname, unsigned char attr, time_t wrtTime,
              unsigned short fstClus, unsigned int fileSize) {
     Entry entry;
-    if (!strcmp(entname, "."))
-        strcpy(entry.DIR_Name, ".          ");
-    else if (!strcmp(entname, ".."))
-        strcpy(entry.DIR_Name, "..         ");
-    else {
-        char *strCopy = strdup(entname), *cpyPtr = strCopy;
-        const char delim[] = ".";
-        char *mainFilename = strsep(&strCopy, delim);
-        for (size_t i = 0; i < 8; i++)
-            if (i < strlen(mainFilename))
-                entry.DIR_Name[i] = mainFilename[i];
-            else
-                entry.DIR_Name[i] = ' ';
-        char *extFilename = strsep(&strCopy, delim);
-        for (size_t i = 0; i < 3; i++)
-            if (extFilename && i < strlen(extFilename))
-                entry.DIR_Name[8 + i] = extFilename[i];
-            else
-                entry.DIR_Name[8 + i] = ' ';
-        entry.DIR_Name[11] = '\0';
-        free(cpyPtr);
-    }
+    parseEntname(entname, entry.DIR_Name);
     entry.DIR_Attr = attr;
     memset(entry.Reserve, 0, 10);
     parseTime(wrtTime, &entry.DIR_WrtTime, &entry.DIR_WrtDate);
@@ -58,40 +37,69 @@ Entry getEnt(const char *entname, unsigned char attr, time_t wrtTime,
 void printEntInfo(const Entry *entry) {
     if (entry->DIR_Attr == DIR_ATTR) printf("\x1b[34;1m");
     char filename[12];
-    parseEntName(entry, filename);
+    parseEntNameStr(entry->DIR_Name, filename);
     printf("%-12s", filename);
     printf("\x1b[0m");
     printf("  0x%02X", entry->DIR_Attr);
     char time[20];
     parseWriTime(entry->DIR_WrtTime, entry->DIR_WrtDate, time);
     printf("  %s", time);
-    if (entry->DIR_Attr != DIR_ATTR) printf("  %-7d Bytes", entry->DIR_FileSize);
+    if (entry->DIR_Attr != DIR_ATTR)
+        printf("  %-7d Bytes", entry->DIR_FileSize);
     printf("\n");
 }
 
-void parseEntName(const Entry *entry, char *filename) {
-    if (!strcmp(".          ", entry->DIR_Name)) {
-        strcpy(filename, ".");
+void parseEntname(const char *entname, char *entnameStr) {
+    if (!strcmp(entname, "."))
+        strcpy(entnameStr, ".          ");
+    else if (!strcmp(entname, ".."))
+        strcpy(entnameStr, "..         ");
+    else {
+        char *strCopy = strdup(entname), *cpyPtr = strCopy;
+        const char delim[] = ".";
+        char *mainFilename = strsep(&strCopy, delim);
+        for (size_t i = 0; i < 8; i++)
+            if (i < strlen(mainFilename))
+                entnameStr[i] = mainFilename[i];
+            else
+                entnameStr[i] = ' ';
+        char *extFilename = strsep(&strCopy, delim);
+        if (extFilename && strlen(extFilename) == 0)
+            entnameStr[strlen(mainFilename)] = '.';
+        for (size_t i = 0; i < 3; i++)
+            if (extFilename && i < strlen(extFilename))
+                entnameStr[8 + i] = extFilename[i];
+            else
+                entnameStr[8 + i] = ' ';
+        entnameStr[11] = '\0';
+        free(cpyPtr);
+    }
+}
+
+void parseEntNameStr(const char *entnameStr, char *entname) {
+    if (!strcmp(".          ", entnameStr)) {
+        strcpy(entname, ".");
         return;
     }
-    if (!strcmp("..         ", entry->DIR_Name)) {
-        strcpy(filename, "..");
+    if (!strcmp("..         ", entnameStr)) {
+        strcpy(entname, "..");
         return;
     }
     size_t len = 0;
     for (size_t i = 0; i < 8; i++) {
-        if (entry->DIR_Name[i] == ' ') break;
-        filename[i] = entry->DIR_Name[len++];
+        if (entnameStr[i] == ' ') break;
+        entname[i] = entnameStr[len++];
     }
-    if (entry->DIR_Name[8] == ' ') {
-        filename[len] = '\0';
-    } else
-        filename[len++] = '.';
+    if (entnameStr[8] == ' ') {
+        entname[len] = '\0';
+        return;
+    }
+    entname[len++] = '.';
     for (size_t i = 8; i < 11; i++) {
-        if (entry->DIR_Name[i] == ' ') break;
-        filename[len++] = entry->DIR_Name[i];
+        if (entnameStr[i] == ' ') break;
+        entname[len++] = entnameStr[i];
     }
-    filename[len] = '\0';
+    entname[len] = '\0';
 }
 
 void parseTime(time_t timer, unsigned short *wrtTime, unsigned short *wrtDate) {
@@ -141,24 +149,8 @@ int daysPerMon(int year, int month) {
     }
 }
 
-bool entnameEq(const char *str, const char *entname) {
-    if (!strcmp(str, ".")) return diskStrEq(".          ", entname, 11);
-    if (!strcmp(str, "..")) return diskStrEq("..         ", entname, 11);
-
-    char *strCopy = strdup(str), *cpyPtr = strCopy;
-    const char delim[] = ".";
-
-    char *mainFilename = strsep(&strCopy, delim);
-    if (!diskStrEq(mainFilename, entname, 8)) {
-        free(cpyPtr);
-        return false;
-    }
-    char *extFilename = strsep(&strCopy, delim);
-    if (extFilename && !diskStrEq(extFilename, entname + 8, 3)) {
-        free(cpyPtr);
-        return false;
-    }
-
-    free(cpyPtr);
-    return true;
+bool entnameEq(const char *inputStr, const char *entNameStr) {
+    char entname[12];
+    parseEntNameStr(entNameStr, entname);
+    return !strcmp(inputStr, entname);
 }
