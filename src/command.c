@@ -163,14 +163,18 @@ int treecmd(unsigned short clus, const char *path,
     return 0;
 }
 
-int pwdcmd(unsigned short clus, const unsigned char *ramFDD144) {
-    char path[BLOCKNUM - 33][12];
-    size_t cnt = findPath(path, clus, ramFDD144);
+int pwdcmd(unsigned short clus, const unsigned char *path,
+           const unsigned char *ramFDD144) {
+    unsigned short dirClus = clus, entClus = clus;
+    if (path) entClus = parsePath(&dirClus, path, ramFDD144);
+    if (entClus == (unsigned short)-1) return NO_FILE_DIR;
+    char targetPath[BLOCKNUM - 33][12];
+    size_t cnt = findPath(targetPath, entClus, ramFDD144);
     for (int i = cnt - 1; i >= 0; i--)
         if (i == 0 || i == cnt - 1)
-            printf("%s", path[i]);
+            printf("%s", targetPath[i]);
         else
-            printf("%s/", path[i]);
+            printf("%s/", targetPath[i]);
     printf("\n");
     return 0;
 }

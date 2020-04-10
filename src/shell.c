@@ -57,7 +57,7 @@ int excuteCmd(const Command *cmd, unsigned short *clus,
     } else if (!strcmp(cmd->argv[0], "tree")) {
         res = treecmd(*clus, cmd->argv[1], ramFDD144);
     } else if (!strcmp(cmd->argv[0], "pwd")) {
-        res = pwdcmd(*clus, ramFDD144);
+        res = pwdcmd(*clus, cmd->argv[1], ramFDD144);
     } else if (!strcmp(cmd->argv[0], "clear")) {
         res = clearcmd();
     } else {
