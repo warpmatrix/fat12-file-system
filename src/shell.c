@@ -3,7 +3,7 @@
 Command inputCmd(void) {
     Command cmd;
     char input[CMDLEN];
-    fgets(input, CMDLEN, stdin);
+    getCmdLine(input, CMDLEN);
     cmd = parseInp(input);
     return cmd;
 }

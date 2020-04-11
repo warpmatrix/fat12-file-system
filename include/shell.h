@@ -4,8 +4,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "dir-entry.h"
 #include "command.h"
+#include "dir-entry.h"
+#include "editor.h"
 
 #define CMDLEN 256
 
@@ -18,7 +19,8 @@ Command inputCmd(void);
 void initCmd(Command *cmd);
 Command parseInp(const char *input);
 void printCmd(const Command *cmd);
-int excuteCmd(const Command *cmd, unsigned short *clus, unsigned char *ramFDD144);
+int excuteCmd(const Command *cmd, unsigned short *clus,
+              unsigned char *ramFDD144);
 void freeCmd(Command *cmd);
 
 void printErrInfo(const Command *cmd, int res);
