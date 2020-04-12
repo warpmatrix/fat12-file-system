@@ -8,8 +8,10 @@ To run the project in linux, use commands:
 
 ```shell
 make
-./bin/my-fat12-file-system
+./bin/my-fat12-file-system <diskname>
 ```
+
+> \<diskname> is the name of the loaded disk
 
 Or, use ```make run-test``` to run google test.
 
@@ -33,6 +35,6 @@ Or, use ```make run-test``` to run google test.
 
 1. utils, io
 2. entry, fat, fat12-header, dir-entry
-3. operation
+3. operation, editor
 4. shell, command
 5. system

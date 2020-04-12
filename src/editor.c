@@ -3,7 +3,7 @@
 static size_t max(size_t num1, size_t num2);
 static size_t min(size_t num1, size_t num2);
 
-void getCmdLine(char *input, size_t inputSize) {
+void getCmdLine(char *input) {
     system("stty -icanon");
     system("stty -echo");
     strcpy(input, "");
@@ -29,23 +29,23 @@ void getCmdLine(char *input, size_t inputSize) {
                     printf("\a");
                     break;
                 }
-                char newInp[inputSize];
+                char newInp[CMDLEN];
                 newIdx--, newLen--;
                 strncpy(newInp, input, index - 1);
                 newInp[index - 1] = '\0';
                 if (index < len)
-                    strncat(newInp, input + index + 1, len - index - 1);
+                    strcat(newInp, input + index);
                 strcpy(input, newInp);
                 break;
             }
             default: {
                 char chstr[2] = {ch, '\0'};
-                char newInp[inputSize];
+                char newInp[CMDLEN];
                 newLen++, newIdx++;
                 strncpy(newInp, input, index);
                 newInp[index] = '\0';
                 strcat(newInp, chstr);
-                strncat(newInp, input + index, len - index);
+                strcat(newInp, input + index);
                 strcpy(input, newInp);
                 break;
             }
@@ -54,6 +54,8 @@ void getCmdLine(char *input, size_t inputSize) {
         printf("\x1b[0K%s", input);
         len = newLen, index = newIdx;
         for (size_t i = 0; i < newLen - newIdx; i++) printf("\x1b[D");
+        // for (size_t i = 0; i < len; i++) printf("%d(%c) ", input[i], input[i]);
+        // printf("(idx: %ld, len: %ld)\n", index, len);
     }
     putchar(ch);  // output '\n'
     system("stty echo");

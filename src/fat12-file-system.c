@@ -5,13 +5,11 @@
 #include "io.h"
 #include "shell.h"
 
-const char FILENAME[] = "disk/disk.flp";
-
-int init(unsigned char *ramFDD144);
+int init(unsigned char *ramFDD144, const char *filename);
 
 int main(int argc, char const *argv[]) {
     unsigned char ramFDD144[SIZE];
-    int res = init(ramFDD144);
+    int res = init(ramFDD144, argv[1]);
     if (res != SIZE) {
         if (res == -1) printf("Cannot find the disk\n");
         if (res == -2) printf("File allocation table error\n");
@@ -37,12 +35,12 @@ int main(int argc, char const *argv[]) {
     freeCmd(&cmd);
 
     writeFats(ramFDD144);
-    Write_ramFDD(ramFDD144, FILENAME);
+    Write_ramFDD(ramFDD144, argv[1]);
     return 0;
 }
 
-int init(unsigned char *ramFDD144) {
-    int cnt = Read_ramFDD(ramFDD144, FILENAME);
+int init(unsigned char *ramFDD144, const char *filename) {
+    int cnt = Read_ramFDD(ramFDD144, filename);
     if (cnt != SIZE) return cnt;
 
     printf("MBR info:\n");

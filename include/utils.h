@@ -10,7 +10,6 @@
 #define BLOCKNUM 2880
 #define BLOCKSIZE 512
 #define SIZE (BLOCKNUM * BLOCKSIZE)
-extern const char FILENAME[];
 
 typedef struct Stack {
     void *arr[BLOCKNUM - 33];
